@@ -222,15 +222,16 @@ jobs:
         working-directory: artifacts
         run: |
           declare -a arr=("Linux" "Windows" "macOS")
-          for i in "${arr[@]}"
+          for os in "${arr[@]}"
           do
-            echo "Creating archive release-$i.tar.gz"
-            tar --concatenate --file=release-$i.tar arango-$i/arango-$i.tar
-            tar --concatenate --file=release-$i.tar ton-node-$i/ton-node-$i.tar
-            tar --concatenate --file=release-$i.tar nginx-$i/nginx-$i.tar
-            tar --concatenate --file=release-$i.tar q-server-$i/q-server-$i.tar
-            tar --concatenate --file=release-$i.tar configs/configs.tar
-            gzip release-$i.tar
+            echo "Creating archive release-$os.tar.gz"
+            tar --concatenate --file=release-$os.tar arango-$os/arango-$os.tar
+            tar --concatenate --file=release-$os.tar ton-node-$os/ton-node-$os.tar
+            tar --concatenate --file=release-$os.tar nginx-$os/nginx-$os.tar
+            tar --concatenate --file=release-$os.tar q-server-$os/q-server-$os.tar
+            tar --concatenate --file=release-$os.tar configs/configs.tar
+            gzip release-$os.tar
+            cat release-$os.tar.gz | sha256sum | awk '{print $1}' > release-$os.tar.gz.sha256
           done
 
       - name: 🍸 Publish release
@@ -241,4 +242,4 @@ jobs:
           prerelease: false
           draft: ${{ github.event_name == 'pull_request' }}
           title: "Node SE binaries ${{ env.TONOS_SE_VERSION }}"
-          files: artifacts/**/release-*.tar.gz
+          files: artifacts/**/release-*.tar.gz*
