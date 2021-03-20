@@ -42,10 +42,8 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: |
-            ${{ runner.os }}-cargoregistry-${{ hashFiles('ton-node-se/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargoregistry-
+          key: ${{ runner.os }}-cargoregistry-${{ hashFiles('ton-node-se/**/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargoregistry-
 
       - name: 🔨 Generate Cargo.lock
         working-directory: ton-node-se
@@ -56,12 +54,8 @@ jobs:
       - name: ⚡ Cache target
         uses: actions/cache@v2
         with:
-          path: |
-            ton-node-se/target
-          key: |
-            ${{ runner.os }}-cargotarget-${{ hashFiles('ton-node-se/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargotarget-
+          path: ton-node-se/target
+          key: ${{ runner.os }}-cargotarget-${{ hashFiles('ton-node-se/**/Cargo.lock') }}
 
       - name: 🔨 Build
         working-directory: ton-node-se
