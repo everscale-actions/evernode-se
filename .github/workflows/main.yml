@@ -187,13 +187,16 @@ jobs:
 
   build-configs:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tonos-se-release: [ 0.24.12, 0.24.13, 0.25.0 ]    
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
           path: tonos-se
           repository: 'tonlabs/tonos-se'
-          ref: ${{ env.TONOS_SE_VERSION }}
+          ref: ${{ matrix.tonos-se-release }}
 
       - name: Copy additional files from tonos-se repos
         run: |
@@ -205,13 +208,13 @@ jobs:
           find . -name "entrypoint" -type f -delete
           mkdir -p nginx
           mv nginx.conf.d nginx/nginx.conf
-          tar -cvf ../configs.tar `ls -A`
+          tar -cvf ../configs-${{ matrix.tonos-se-release }}.tar `ls -A`
 
       - name: 📚 Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: configs
-          path: configs.tar
+          name: configs-${{ matrix.tonos-se-release }}
+          path: configs-${{ matrix.tonos-se-release }}.tar
           if-no-files-found: error
 
   publish-release-draft:
@@ -232,20 +235,20 @@ jobs:
       - name: 'Merge tar files'
         working-directory: artifacts
         run: |
-          declare -a releases=("0.24.12" "0.24.13" "0.25.0")
+          declare -a tonosSeReleases=("0.24.12" "0.24.13" "0.25.0")
           declare -a osArray=("Linux" "Windows" "macOS")          
           for os in "${osArray[@]}"
           do
-            for release in "${releases[@]}"
+            for tonosSeRelease in "${tonosSeReleases[@]}"
             do
-              echo "Creating archive release-$os-$release.tar.gz"
-              tar --concatenate --file=release-$os-$release.tar ton-node-$os-$release/ton-node-$os-$release.tar
-              tar --concatenate --file=release-$os-$release.tar arango-$os/arango-$os.tar              
-              tar --concatenate --file=release-$os-$release.tar nginx-$os/nginx-$os.tar
-              tar --concatenate --file=release-$os-$release.tar q-server-$os/q-server-$os.tar
-              tar --concatenate --file=release-$os-$release.tar configs/configs.tar
-              gzip release-$os-$release.tar
-              cat release-$os-$release.tar.gz | sha256sum | awk '{print $1}' > release-$os-$release.tar.gz.sha256
+              echo "Creating archive release-$os-$tonosSeRelease.tar.gz"
+              tar --concatenate --file=release-$os-$tonosSeRelease.tar ton-node-$os-$tonosSeRelease/ton-node-$os-$tonosSeRelease.tar
+              tar --concatenate --file=release-$os-$tonosSeRelease.tar arango-$os/arango-$os.tar              
+              tar --concatenate --file=release-$os-$tonosSeRelease.tar nginx-$os/nginx-$os.tar
+              tar --concatenate --file=release-$os-$tonosSeRelease.tar q-server-$os/q-server-$os.tar
+              tar --concatenate --file=release-$os-$tonosSeRelease.tar configs-$tonosSeRelease/configs-$tonosSeRelease.tar
+              gzip release-$os-$tonosSeRelease.tar
+              cat release-$os-$tonosSeRelease.tar.gz | sha256sum | awk '{print $1}' > release-$os-$tonosSeRelease.tar.gz.sha256
             done
           done          
 
