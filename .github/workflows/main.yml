@@ -15,7 +15,8 @@ on:
   workflow_dispatch:
 
 env:
-  TONOS_SE_VERSION: 0.25.0
+  TONOS_SE_REPO_OWNER: tonlabs
+  TONOS_SE_REPO_NAME: tonos-se
   ARANGODB_VERSION: 3.7.9
   TON_Q_SERVER_VERSION: 0.34.0
   NGINX_VERSION: 1.19.7
@@ -25,17 +26,33 @@ defaults:
     shell: bash
 
 jobs:
+# todo: no way to set matrix as variable, should be moved to separate workflow 
+#  get-tonos-releases:
+#    runs-on: ubuntu-latest
+#    steps:      
+#      - name: Get TONOS SE Releases
+#        id: releases
+#        uses: actions/github-script@v3
+#        with:
+#          script: |
+#            var { data } = await github.repos.listReleases({
+#              owner: '${{ env.TONOS_SE_REPO_OWNER }}',
+#              repo: '${{ env.TONOS_SE_REPO_NAME }}',
+#            });
+#            core.setOutput('result', data.map(release=>release.tag_name));
+            
   build-node-se:
     strategy:
       matrix:
         runs-on: [ ubuntu-18.04, macos-10.15, windows-2019 ]
+        tonos-se-release: [ 0.24.12, 0.24.13, 0.25.0 ]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
-          repository: 'tonlabs/tonos-se'
-          ref: ${{ env.TONOS_SE_VERSION }}
+          repository: '${{ env.TONOS_SE_REPO_OWNER }}/${{ env.TONOS_SE_REPO_NAME }}'
+          ref: ${{ matrix.tonos-se-release }}
 
       - name: ⚡ Cache cargo
         uses: actions/cache@v2
@@ -73,13 +90,13 @@ jobs:
             cp ton-node-se/target/release/ton_node_startup ton-node
             chmod +x ton-node/ton_node_startup
           fi
-          tar -cvf ton-node-${{ runner.os }}.tar ton-node
+          tar -cvf ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}.tar ton-node
 
       - name: 📚 Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ton-node-${{ runner.os }}
-          path: ton-node-${{ runner.os }}.tar
+          name: ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}
+          path: ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}.tar
           if-no-files-found: error
 
   build-arango:
@@ -197,7 +214,8 @@ jobs:
           path: configs.tar
           if-no-files-found: error
 
-  publish-release:
+  publish-release-draft:
+    if: github.event_name == 'push'    
     needs:
       - build-node-se
       - build-arango
@@ -214,25 +232,33 @@ jobs:
       - name: 'Merge tar files'
         working-directory: artifacts
         run: |
-          declare -a arr=("Linux" "Windows" "macOS")
-          for os in "${arr[@]}"
+          declare -a releases=("0.24.12" "0.24.13" "0.25.0")
+          declare -a osArray=("Linux" "Windows" "macOS")          
+          for os in "${osArray[@]}"
           do
-            echo "Creating archive release-$os.tar.gz"
-            tar --concatenate --file=release-$os.tar arango-$os/arango-$os.tar
-            tar --concatenate --file=release-$os.tar ton-node-$os/ton-node-$os.tar
-            tar --concatenate --file=release-$os.tar nginx-$os/nginx-$os.tar
-            tar --concatenate --file=release-$os.tar q-server-$os/q-server-$os.tar
-            tar --concatenate --file=release-$os.tar configs/configs.tar
-            gzip release-$os.tar
-            cat release-$os.tar.gz | sha256sum | awk '{print $1}' > release-$os.tar.gz.sha256
-          done
+            for release in "${releases[@]}"
+            do
+              echo "Creating archive release-$os-$release.tar.gz"
+              tar --concatenate --file=release-$os-$release.tar ton-node-$os-$release/ton-node-$os-$release.tar
+              tar --concatenate --file=release-$os-$release.tar arango-$os/arango-$os.tar              
+              tar --concatenate --file=release-$os-$release.tar nginx-$os/nginx-$os.tar
+              tar --concatenate --file=release-$os-$release.tar q-server-$os/q-server-$os.tar
+              tar --concatenate --file=release-$os-$release.tar configs/configs.tar
+              gzip release-$os-$release.tar
+              cat release-$os-$release.tar.gz | sha256sum | awk '{print $1}' > release-$os-$release.tar.gz.sha256
+            done
+          done          
 
-      - name: 🍸 Publish release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Release Drafter
+        id: release-drafter
+        uses: release-drafter/release-drafter@v5.15.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Release Artifact
+        uses: ch1seL/upload-assets@master
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.TONOS_SE_VERSION }}"
-          prerelease: false
-          draft: ${{ github.event_name == 'pull_request' }}
-          title: "Node SE binaries ${{ env.TONOS_SE_VERSION }}"
-          files: artifacts/**/release-*.tar.gz*
+          upload_url: ${{ steps.release-drafter.outputs.upload_url }}
+          asset_paths: '["./artifacts/**/release-*.tar.gz"]'
