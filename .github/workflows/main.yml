@@ -264,4 +264,4 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-          asset_paths: '["./artifacts/**/release-*.tar.gz"]'
+          asset_paths: '["./artifacts/**/release-*.tar.gz*"]'
