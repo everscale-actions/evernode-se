@@ -241,17 +241,17 @@ jobs:
           do
             for tonosSeRelease in "${tonosSeReleases[@]}"
             do
-              echo "Creating archive release-$os-$tonosSeRelease.tar.gz"
-              tar --concatenate --file=release-$os-$tonosSeRelease.tar ton-node-$os-$tonosSeRelease/ton-node-$os-$tonosSeRelease.tar
-              tar --concatenate --file=release-$os-$tonosSeRelease.tar arango-$os/arango-$os.tar              
-              tar --concatenate --file=release-$os-$tonosSeRelease.tar nginx-$os/nginx-$os.tar
-              tar --concatenate --file=release-$os-$tonosSeRelease.tar q-server-$os/q-server-$os.tar
-              tar --concatenate --file=release-$os-$tonosSeRelease.tar configs-$tonosSeRelease/configs-$tonosSeRelease.tar
-              gzip -1 release-$os-$tonosSeRelease.tar
-              cat release-$os-$tonosSeRelease.tar.gz | sha256sum | awk '{print $1}' > release-$os-$tonosSeRelease.tar.gz.sha256
+              echo "Creating archive tonos-se-$os-$tonosSeRelease.tar.gz"
+              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar ton-node-$os-$tonosSeRelease/ton-node-$os-$tonosSeRelease.tar
+              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar arango-$os/arango-$os.tar              
+              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar nginx-$os/nginx-$os.tar
+              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar q-server-$os/q-server-$os.tar
+              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar configs-$tonosSeRelease/configs-$tonosSeRelease.tar
+              gzip -1 tonos-se-$os-$tonosSeRelease.tar
+              cat tonos-se-$os-$tonosSeRelease.tar.gz | sha256sum | awk '{print $1}' > tonos-se-$os-$tonosSeRelease.tar.gz.sha256
             done
-            cp release-$os-${tonosSeReleases[-1]}.tar.gz release-$os-latest.tar.gz
-            cp release-$os-${tonosSeReleases[-1]}.tar.gz.sha256 release-$os-latest.tar.gz.sha256
+            cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz tonos-se-$os-latest.tar.gz
+            cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz.sha256 tonos-se-$os-latest.tar.gz.sha256
           done    
 
       - name: Release Drafter
@@ -266,4 +266,4 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-          asset_paths: '["./artifacts/**/release-*.tar.gz*"]'
+          asset_paths: '["./artifacts/**/tonos-se-*.tar.gz*"]'
