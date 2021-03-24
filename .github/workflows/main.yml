@@ -247,7 +247,7 @@ jobs:
               tar --concatenate --file=release-$os-$tonosSeRelease.tar nginx-$os/nginx-$os.tar
               tar --concatenate --file=release-$os-$tonosSeRelease.tar q-server-$os/q-server-$os.tar
               tar --concatenate --file=release-$os-$tonosSeRelease.tar configs-$tonosSeRelease/configs-$tonosSeRelease.tar
-              gzip release-$os-$tonosSeRelease.tar
+              gzip -1 release-$os-$tonosSeRelease.tar
               cat release-$os-$tonosSeRelease.tar.gz | sha256sum | awk '{print $1}' > release-$os-$tonosSeRelease.tar.gz.sha256
             done
             cp release-$os-${tonosSeReleases[-1]}.tar.gz release-$os-latest.tar.gz
