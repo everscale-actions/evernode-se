@@ -1,4 +1,4 @@
-# ton-node-se-binaries
+# tonos-se-binaries
 
 The solution prepares special application packs (releases) for running [TON OS Startup Edition without Docker](https://github.com/ton-actions/tonos-se) for different Operational Systems. The main idea for the solution is creating standardized application packs.
 
