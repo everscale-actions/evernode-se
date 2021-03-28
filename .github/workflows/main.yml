@@ -77,17 +77,17 @@ jobs:
           key: ${{ matrix.runs-on }}-cargoregistry-${{ hashFiles('ton-node-se/**/Cargo.toml') }}
           restore-keys: ${{ matrix.runs-on }}-cargoregistry-
 
-      - name: 🔨 Generate Cargo.lock
-        working-directory: ton-node-se
-        env:
-          CARGO_TERM_COLOR: always
-        run: cargo generate-lockfile
+      # - name: 🔨 Generate Cargo.lock
+      #   working-directory: ton-node-se
+      #   env:
+      #     CARGO_TERM_COLOR: always
+      #   run: cargo generate-lockfile
 
-      - name: ⚡ Cache target
-        uses: actions/cache@v2
-        with:
-          path: ton-node-se/target
-          key: ${{ matrix.runs-on }}-cargotarget-${{ hashFiles('ton-node-se/**/Cargo.lock') }}
+      # - name: ⚡ Cache target
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ton-node-se/target
+      #     key: ${{ matrix.runs-on }}-cargotarget-${{ hashFiles('ton-node-se/**/Cargo.lock') }}
 
       - name: 🔨 Build
         working-directory: ton-node-se
