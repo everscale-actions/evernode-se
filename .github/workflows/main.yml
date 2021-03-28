@@ -3,16 +3,16 @@
 on:
   push:
     paths-ignore:
-      - 'README.md'
-      - '.github/workflows/clean-artifacts.yml'
-      - '.github/workflows/node-release-detection.yml' 
+      - "README.md"
+      - ".github/workflows/clean-artifacts.yml"
+      - ".github/workflows/node-release-detection.yml"
     branches:
       - main
   pull_request:
-   paths-ignore:
-     - 'README.md'
-     - '.github/workflows/clean-artifacts.yml'
-     - '.github/workflows/node-release-detection.yml'
+    paths-ignore:
+      - "README.md"
+      - ".github/workflows/clean-artifacts.yml"
+      - ".github/workflows/node-release-detection.yml"
   workflow_dispatch:
 
 env:
@@ -27,32 +27,45 @@ defaults:
     shell: bash
 
 jobs:
-# todo: no way to set matrix as variable, should be moved to separate workflow 
-#  get-tonos-releases:
-#    runs-on: ubuntu-latest
-#    steps:      
-#      - name: Get TONOS SE Releases
-#        id: releases
-#        uses: actions/github-script@v3
-#        with:
-#          script: |
-#            var { data } = await github.repos.listReleases({
-#              owner: '${{ env.TONOS_SE_REPO_OWNER }}',
-#              repo: '${{ env.TONOS_SE_REPO_NAME }}',
-#            });
-#            core.setOutput('result', data.map(release=>release.tag_name));
-            
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build-node-se-matrix: ${{ steps.set-matrix.outputs.build-node-se-matrix }}
+      runner-matrix: ${{ steps.set-matrix.outputs.runner-matrix }}
+      tonos-se-release-matrix: ${{ steps.set-matrix.outputs.tonos-se-release-matrix }}
+      tonos-se-release-array: ${{ steps.set-matrix.outputs.tonos-se-release-array }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get TONOS SE Releases and Set matrix
+        id: set-matrix
+        uses: actions/github-script@v3
+        with:
+          script: |
+            var runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
+            var tonosReleases = require(`${process.env.GITHUB_WORKSPACE}/tonos-se-releases.json`);
+
+            var include = [];
+            runners.forEach(runner=>{
+              tonosReleases.forEach(release=>{
+                include.push({'runs-on': runner, 'tonos-se-release': release});
+              })
+            });
+
+            core.setOutput('build-node-se-matrix', JSON.stringify({include}));
+            core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
+            core.setOutput('tonos-se-release-matrix', JSON.stringify({include: tonosReleases.map(release=>({'tonos-se-release': release}))}));
+            core.setOutput('tonos-se-release-array', tonosReleases.map(release=>`"${release}"`).join(" "));
+
   build-node-se:
+    needs: prepare
     strategy:
-      matrix:
-        runs-on: [ ubuntu-18.04, macos-10.15, windows-2019 ]
-        tonos-se-release: [ 0.24.12, 0.24.13, 0.25.0 ]
+      matrix: ${{ fromJSON(needs.prepare.outputs.build-node-se-matrix) }}
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
-          repository: '${{ env.TONOS_SE_REPO_OWNER }}/${{ env.TONOS_SE_REPO_NAME }}'
+          repository: "${{ env.TONOS_SE_REPO_OWNER }}/${{ env.TONOS_SE_REPO_NAME }}"
           ref: ${{ matrix.tonos-se-release }}
 
       - name: ⚡ Cache cargo
@@ -103,7 +116,7 @@ jobs:
   build-arango:
     strategy:
       matrix:
-        os: [ Linux, Windows, macOS ]
+        os: [Linux, Windows, macOS]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current repo
@@ -139,9 +152,9 @@ jobs:
           if-no-files-found: error
 
   build-q-server:
+    needs: prepare
     strategy:
-      matrix:
-        runs-on: [ ubuntu-18.04, macos-10.15, windows-2019 ]
+      matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout current repo
@@ -166,9 +179,9 @@ jobs:
           if-no-files-found: error
 
   build-nginx:
+    needs: prepare
     strategy:
-      matrix:
-        runs-on: [ ubuntu-18.04, macos-10.15, windows-2019 ]
+      matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v2
@@ -187,16 +200,16 @@ jobs:
           if-no-files-found: error
 
   build-configs:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        tonos-se-release: [ 0.24.12, 0.24.13, 0.25.0 ]    
+      matrix: ${{ fromJSON(needs.prepare.outputs.tonos-se-release-matrix) }}
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
           path: tonos-se
-          repository: 'tonlabs/tonos-se'
+          repository: "tonlabs/tonos-se"
           ref: ${{ matrix.tonos-se-release }}
 
       - name: Copy additional files from tonos-se repos
@@ -219,8 +232,9 @@ jobs:
           if-no-files-found: error
 
   publish-release-draft:
-    if: github.event_name == 'push'    
+    if: github.event_name == 'push'
     needs:
+      - prepare
       - build-node-se
       - build-arango
       - build-q-server
@@ -233,10 +247,10 @@ jobs:
         with:
           path: artifacts
 
-      - name: 'Merge tar files'
+      - name: "Merge tar files"
         working-directory: artifacts
         run: |
-          declare -a tonosSeReleases=("0.24.12" "0.24.13" "0.25.0")
+          declare -a tonosSeReleases=(${{ needs.prepare.outputs.tonos-se-release-array }})
           declare -a osArray=("Linux" "Windows" "macOS")          
           for os in "${osArray[@]}"
           do
@@ -253,7 +267,7 @@ jobs:
             done
             cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz tonos-se-$os-latest.tar.gz
             cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz.sha256 tonos-se-$os-latest.tar.gz.sha256
-          done    
+          done
 
       - name: Release Drafter
         id: release-drafter
