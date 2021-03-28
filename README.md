@@ -8,11 +8,13 @@ So if [TON OS Startup Edition](https://github.com/tonlabs/tonos-se) releases a n
 
 ## How it works
 
-To make the process of building fast and easy, we use Github Actions and GitHub Workflow for building all necessary binary application packs in ton-actions/tonos-se-binaries repository. TonOS SE application pack is a tar.gz archive that contains applications (Nginx, ArangoDB, Q Server, Ton Node) and configuration files to quick start. The full list of application packs could be found here.
+To make the process of building fast and easy, we use Github Actions and GitHub Workflow for building all necessary binary application packs in ton-actions/tonos-se-binaries repository. TonOS SE application pack is a tar.gz archive that contains applications (Nginx, ArangoDB, Q Server, Ton Node) and configuration files to quick start. The full list of application packs could be found here. 
 
 ### Building applications
 
 Almost all GitHub Jobs in [main.yaml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/main.yml) Workflow file use [build matrix](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix). This approach allows us to build each possible version of application pack for each Operating System, easy and clean delivery to the clients. Below is described general information about building each application in binary packs.
+
+> Each night a special workflow file checks a new verion of [TON OS Startup Edition](https://github.com/tonlabs/tonos-se). If detects a new verision, [node-release-detection.yml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/node-release-detection.yml) initiation a process of building and publishing a new release of application pack.
 
 | Matrix | Ton Node | Nginx | Arango DB | Q Server |
 | --- | --- | --- | --- | --- |
