@@ -9,10 +9,10 @@ on:
     branches:
       - main
   pull_request:
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/clean-artifacts.yml'
-      - '.github/workflows/node-release-detection.yml'
+   paths-ignore:
+     - 'README.md'
+     - '.github/workflows/clean-artifacts.yml'
+     - '.github/workflows/node-release-detection.yml'
   workflow_dispatch:
 
 env:
