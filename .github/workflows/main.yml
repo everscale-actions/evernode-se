@@ -3,15 +3,16 @@
 on:
   push:
     paths-ignore:
+      - 'README.md'
       - '.github/workflows/clean-artifacts.yml'
-      - 'README.md' 
+      - '.github/workflows/node-release-detection.yml' 
     branches:
       - main
   pull_request:
     paths-ignore:
       - 'README.md'
-    branches:
-      - main
+      - '.github/workflows/clean-artifacts.yml'
+      - '.github/workflows/node-release-detection.yml'
   workflow_dispatch:
 
 env:
