@@ -12,7 +12,7 @@ To make the process of building fast and easy, we use Github Actions and GitHub 
 
 ### Building applications
 
-Almost all GitHub Jobs in [main.yaml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/main.yml) Workflow file use [build matrix](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix). This approach allows us to build each possible version of application pack for each Operating System, easy and clean delivery to the clients. Below is described general information about building each application in binary packs.
+Almost all GitHub Jobs in [build-and-release.yml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/build-and-release.yml) Workflow file use [build matrix](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix). This approach allows us to build each possible version of application pack for each Operating System, easy and clean delivery to the clients. Below is described general information about building each application in binary packs.
 
 > Each night a special workflow file checks a new verion of [TON OS Startup Edition](https://github.com/tonlabs/tonos-se). If detects a new verision, [node-release-detection.yml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/node-release-detection.yml) initiation a process of building and publishing a new release of application pack.
 
@@ -21,7 +21,7 @@ Almost all GitHub Jobs in [main.yaml](https://github.com/ton-actions/tonos-se-bi
 | OS: [ ubuntu-18.04, macos-10.15, windows-2019 ] | x | x | x | x |
 | Ton Node SE versions: [ 0.24.12, 0.24.13, 0.25.0 ] | x | - | - | - |
 
-Version of each application can be changed by settings ENV variables in [main.yml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/main.yml). 
+Version of each application can be changed by settings ENV variables in [build-and-release.yml](https://github.com/ton-actions/tonos-se-binaries/blob/main/.github/workflows/build-and-release.yml). 
 
 ```yml
 ARANGODB_VERSION: 3.7.9
