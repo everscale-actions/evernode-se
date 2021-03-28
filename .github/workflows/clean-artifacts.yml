@@ -1,4 +1,4 @@
-﻿name: clean artifacts
+﻿name: Clean old artifacts
 
 on:
   workflow_dispatch:

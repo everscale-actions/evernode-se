@@ -1,4 +1,4 @@
-﻿name: TONOS Binaries
+﻿name: Build and Release TON OS SE binaries
 
 on:
   push:
