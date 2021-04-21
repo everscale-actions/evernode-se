@@ -21,6 +21,7 @@ env:
   ARANGODB_VERSION: 3.7.9
   TON_Q_SERVER_VERSION: 0.36.0
   NGINX_VERSION: 1.19.7
+  TONOS_SE_MIN_VERSION: 0.27.0
 
 defaults:
   run:
@@ -42,7 +43,8 @@ jobs:
         with:
           script: |
             var runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
-            var tonosReleases = require(`${process.env.GITHUB_WORKSPACE}/tonos-se-releases.json`);
+            var tonosReleases = require(`${process.env.GITHUB_WORKSPACE}/tonos-se-releases.json`)
+                                  .filter(r=>r>=process.env.TONOS_SE_MIN_VERSION);
 
             var include = [];
             runners.forEach(runner=>{
