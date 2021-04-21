@@ -191,6 +191,7 @@ jobs:
         run: |
           npm install
           npm run download
+          cp mime.types nginx/mime.types
       - run: tar -C nginx -cvf nginx-${{ runner.os }}.tar nginx
       - name: 📚 Publish artifact
         uses: actions/upload-artifact@v2
