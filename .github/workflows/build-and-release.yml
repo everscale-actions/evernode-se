@@ -168,11 +168,11 @@ jobs:
 
       - name: NPM Install
         working-directory: q-server
-        run: npm install --production --force
+        run: npm install
 
-      - name: TSC
+      - name: typescript build
         working-directory: q-server
-        run: tsc
+        run: npm run tsc
 
       - name: TAR q-server binaries
         run: tar -cvf q-server-${{ runner.os }}.tar q-server/dist/ q-server/res/ q-server/node_modules/ q-server/index.js q-server/package.json
