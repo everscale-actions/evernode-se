@@ -170,6 +170,10 @@ jobs:
         working-directory: q-server
         run: npm install --production --force
 
+      - name: TSC
+        working-directory: q-server
+        run: tsc
+
       - name: TAR q-server binaries
         run: tar -cvf q-server-${{ runner.os }}.tar q-server/dist/ q-server/res/ q-server/node_modules/ q-server/index.js q-server/package.json
 
