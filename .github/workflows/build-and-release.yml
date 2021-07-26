@@ -44,22 +44,24 @@ jobs:
         with:
           script: |
             var runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
-            core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
 
             var { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease(
               {
                 owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', 
                 repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'
               });
-            core.setOutput('q-server-version', latestQServerRelease);            
 
             if ('${{ github.event.inputs.tonos-se-version }}') {
-              core.setOutput('tonos-se-version', '${{ github.event.inputs.tonos-se-version }}');
+              tonos-se-version = '${{ github.event.inputs.tonos-se-version }}';
             } else if ('${{ github.ref }}'.startsWith('refs/tags/')) {
-              core.setOutput('tonos-se-version', '${{ github.ref }}');
+              tonos-se-version = '${{ github.ref }}';            
             } else {
-              core.setOutput('tonos-se-version', '${{ github.ref }}');
+              tonos-se-version = '${{ env.TONOS_SE_DEFAULT_VERSION }}';
             }
+
+            core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
+            core.setOutput('q-server-version', latestQServerRelease);            
+            core.setOutput('tonos-se-version', tonos-se-version);
 
   build-node-se:
     needs: prepare
