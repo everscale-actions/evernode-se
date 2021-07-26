@@ -197,7 +197,6 @@ jobs:
           if-no-files-found: error
 
   build-nginx:
-    needs: prepare
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
     runs-on: ${{ matrix.runs-on }}
