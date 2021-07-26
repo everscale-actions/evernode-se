@@ -4,24 +4,24 @@ on:
   push:
     paths-ignore:
       - "README.md"
-      - ".github/workflows/clean-artifacts.yml"
       - ".github/workflows/node-release-detection.yml"
-    branches:
-      - main
+    tags:
+      - "*"
   pull_request:
     paths-ignore:
       - "README.md"
-      - ".github/workflows/clean-artifacts.yml"
       - ".github/workflows/node-release-detection.yml"
   workflow_dispatch:
-
+    tonos-se-version:
+      description: 'TON OS SE version'
+      required: true
 env:
   TONOS_SE_REPO_OWNER: tonlabs
   TONOS_SE_REPO_NAME: tonos-se
+  TON_Q_SERVER_REPO_OWNER: tonlabs
+  TON_Q_SERVER_REPO_NAME: ton-q-server
   ARANGODB_VERSION: 3.7.9
-  TON_Q_SERVER_VERSION: 0.41.0
   NGINX_VERSION: 1.19.7
-  TONOS_SE_MIN_VERSION: 0.27.0
 
 defaults:
   run:
@@ -31,10 +31,9 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      build-node-se-matrix: ${{ steps.set-matrix.outputs.build-node-se-matrix }}
       runner-matrix: ${{ steps.set-matrix.outputs.runner-matrix }}
-      tonos-se-release-matrix: ${{ steps.set-matrix.outputs.tonos-se-release-matrix }}
-      tonos-se-release-array: ${{ steps.set-matrix.outputs.tonos-se-release-array }}
+      q-server-version: ${{ steps.set-matrix.outputs.q-server-version }}
+      tonos-se-version: ${{ steps.set-matrix.outputs.tonos-se-version }}
     steps:
       - uses: actions/checkout@v2
       - name: Get TONOS SE Releases and Set matrix
@@ -42,33 +41,34 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            var runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
-            var tonosReleases = require(`${process.env.GITHUB_WORKSPACE}/tonos-se-releases.json`)
-                                  .filter(r=>r>=process.env.TONOS_SE_MIN_VERSION);
-
-            var include = [];
-            runners.forEach(runner=>{
-              tonosReleases.forEach(release=>{
-                include.push({'runs-on': runner, 'tonos-se-release': release});
-              })
-            });
-
-            core.setOutput('build-node-se-matrix', JSON.stringify({include}));
+            // set runners matrix
+            const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
             core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
-            core.setOutput('tonos-se-release-matrix', JSON.stringify({include: tonosReleases.map(release=>({'tonos-se-release': release}))}));
-            core.setOutput('tonos-se-release-array', tonosReleases.map(release=>`"${release}"`).join(" "));
+
+            // set latest q-server version
+            const { data: { tag_name: latestQServerRelease } } = 
+              await github.repos.getLatestRelease({
+                owner: proccess.env.TON_Q_SERVER_REPO_OWNER, 
+                repo: proccess.env.TON_Q_SERVER_REPO_NAME',
+              });
+            core.setOutput('q-server-version', 'latestQServerRelease');            
+
+            // set tonos se version 
+            if ('${{ github.event.inputs.tonos-se-version }}') {
+              core.setOutput('tonos-se-version', '${{ github.event.inputs.tonos-se-version }}');
+            } else {
+              core.setOutput('tonos-se-version', '${{ github.ref }}');
+            }
 
   build-node-se:
     needs: prepare
-    strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.build-node-se-matrix) }}
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
           repository: "${{ env.TONOS_SE_REPO_OWNER }}/${{ env.TONOS_SE_REPO_NAME }}"
-          ref: ${{ matrix.tonos-se-release }}
+          ref: ${{ needs.prepare.outputs.tonos-se-version }}
 
       - name: ⚡ Cache cargo
         uses: actions/cache@v2
@@ -106,13 +106,13 @@ jobs:
             cp ton-node-se/target/release/ton_node_startup ton-node
             chmod +x ton-node/ton_node_startup
           fi
-          tar -cvf ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}.tar ton-node
+          tar -cvf ton-node-${{ runner.os }}.tar ton-node
 
       - name: 📚 Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}
-          path: ton-node-${{ runner.os }}-${{ matrix.tonos-se-release }}.tar
+          name: ton-node-${{ runner.os }}
+          path: ton-node-${{ runner.os }}.tar
           if-no-files-found: error
 
   build-arango:
@@ -163,8 +163,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: q-server
-          repository: tonlabs/ton-q-server
-          ref: ${{ env.TON_Q_SERVER_VERSION }}
+          repository: ${{ env.TON_Q_SERVER_REPO_OWNER }}/${{ env.TON_Q_SERVER_REPO_NAME }}
+          ref: ${{ needs.prepare.outputs.q-server-version }}
 
       - name: NPM Install
         working-directory: q-server
@@ -215,15 +215,13 @@ jobs:
   build-configs:
     needs: prepare
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.tonos-se-release-matrix) }}
     steps:
       - name: Checkout tonos-se
         uses: actions/checkout@v2
         with:
           path: tonos-se
           repository: "tonlabs/tonos-se"
-          ref: ${{ matrix.tonos-se-release }}
+          ref: ${{ needs.prepare.outputs.tonos-se-version }}
 
       - name: Copy additional files from tonos-se repos
         run: |
@@ -235,13 +233,13 @@ jobs:
           find . -name "entrypoint" -type f -delete
           mkdir -p nginx
           mv nginx.conf.d nginx/nginx.conf
-          tar -cvf ../configs-${{ matrix.tonos-se-release }}.tar `ls -A`
+          tar -cvf ../configs.tar `ls -A`
 
       - name: 📚 Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: configs-${{ matrix.tonos-se-release }}
-          path: configs-${{ matrix.tonos-se-release }}.tar
+          name: configs
+          path: configs.tar
           if-no-files-found: error
 
   publish-release-draft:
@@ -263,35 +261,26 @@ jobs:
       - name: "Merge tar files"
         working-directory: artifacts
         run: |
-          declare -a tonosSeReleases=(${{ needs.prepare.outputs.tonos-se-release-array }})
           declare -a osArray=("Linux" "Windows" "macOS")          
           for os in "${osArray[@]}"
           do
-            for tonosSeRelease in "${tonosSeReleases[@]}"
-            do
-              echo "Creating archive tonos-se-$os-$tonosSeRelease.tar.gz"
-              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar ton-node-$os-$tonosSeRelease/ton-node-$os-$tonosSeRelease.tar
-              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar arango-$os/arango-$os.tar              
-              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar nginx-$os/nginx-$os.tar
-              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar q-server-$os/q-server-$os.tar
-              tar --concatenate --file=tonos-se-$os-$tonosSeRelease.tar configs-$tonosSeRelease/configs-$tonosSeRelease.tar
-              gzip -1 tonos-se-$os-$tonosSeRelease.tar
-              cat tonos-se-$os-$tonosSeRelease.tar.gz | sha256sum | awk '{print $1}' > tonos-se-$os-$tonosSeRelease.tar.gz.sha256
-            done
-            cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz tonos-se-$os-latest.tar.gz
-            cp tonos-se-$os-${tonosSeReleases[-1]}.tar.gz.sha256 tonos-se-$os-latest.tar.gz.sha256
+            echo "Creating archive tonos-se-$os.tar.gz"
+            tar --concatenate --file=tonos-se-$os.tar ton-node-$os/ton-node-$os.tar
+            tar --concatenate --file=tonos-se-$os.tar arango-$os/arango-$os.tar              
+            tar --concatenate --file=tonos-se-$os.tar nginx-$os/nginx-$os.tar
+            tar --concatenate --file=tonos-se-$os.tar q-server-$os/q-server-$os.tar
+            tar --concatenate --file=tonos-se-$os.tar configs/configs.tar
+            gzip -1 tonos-se-$os.tar
+            cat tonos-se-$os.tar.gz | sha256sum | awk '{print $1}' > tonos-se-$os.tar.gz.sha256
           done
 
-      - name: Release Drafter
-        id: release-drafter
-        uses: release-drafter/release-drafter@v5.15.0
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Upload Release Artifact
-        uses: ch1seL/upload-assets@master
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Release
+        id: release
+        uses: ncipollo/release-action@v1
         with:
-          upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-          asset_paths: '["./artifacts/**/tonos-se-*.tar.gz*"]'
+          allowUpdates: true
+          artifactErrorsFailBuild: true          
+          artifacts: "./artifacts/tonos-se-*.tar.gz*"
+          tag: ${{ needs.prepare.outputs.tonos-se-version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
