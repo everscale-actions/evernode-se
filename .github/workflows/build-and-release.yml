@@ -22,7 +22,8 @@ env:
   TON_Q_SERVER_REPO_OWNER: tonlabs
   TON_Q_SERVER_REPO_NAME: ton-q-server
   ARANGODB_VERSION: 3.7.9
-  NGINX_VERSION: 1.19.7
+  NGINX_VERSION: 1.19.7  
+  TONOS_SE_DEFAULT_VERSION: 0.28.5
 
 defaults:
   run:
@@ -54,6 +55,8 @@ jobs:
 
             if ('${{ github.event.inputs.tonos-se-version }}') {
               core.setOutput('tonos-se-version', '${{ github.event.inputs.tonos-se-version }}');
+            } else if ('${{ github.ref }}'.startsWith('refs/tags/')) {
+              core.setOutput('tonos-se-version', '${{ github.ref }}');
             } else {
               core.setOutput('tonos-se-version', '${{ github.ref }}');
             }
