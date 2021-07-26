@@ -51,7 +51,7 @@ jobs:
                 owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', 
                 repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'
               });
-            core.setOutput('q-server-version', 'latestQServerRelease');            
+            core.setOutput('q-server-version', latestQServerRelease);            
 
             if ('${{ github.event.inputs.tonos-se-version }}') {
               core.setOutput('tonos-se-version', '${{ github.event.inputs.tonos-se-version }}');
