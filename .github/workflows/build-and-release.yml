@@ -42,15 +42,16 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            // set runners matrix
-            const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
+            var runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
             core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
 
-            // set latest q-server version
-            const { data: { tag_name: latestQServerRelease } } = github.repos.getLatestRelease({owner: proccess.env.TON_Q_SERVER_REPO_OWNER, repo: proccess.env.TON_Q_SERVER_REPO_NAME'});
+            var { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease(
+              {
+                owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', 
+                repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'
+              });
             core.setOutput('q-server-version', 'latestQServerRelease');            
 
-            // set tonos se version 
             if ('${{ github.event.inputs.tonos-se-version }}') {
               core.setOutput('tonos-se-version', '${{ github.event.inputs.tonos-se-version }}');
             } else {
