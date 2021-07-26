@@ -12,9 +12,10 @@ on:
       - "README.md"
       - ".github/workflows/node-release-detection.yml"
   workflow_dispatch:
-    tonos-se-version:
-      description: 'TON OS SE version'
-      required: true
+    inputs:
+      tonos-se-version:
+        description: 'TON OS SE version'
+        required: true
 env:
   TONOS_SE_REPO_OWNER: tonlabs
   TONOS_SE_REPO_NAME: tonos-se
