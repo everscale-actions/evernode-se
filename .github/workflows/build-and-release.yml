@@ -60,6 +60,8 @@ jobs:
 
   build-node-se:
     needs: prepare
+    strategy:
+      matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}    
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout tonos-se
