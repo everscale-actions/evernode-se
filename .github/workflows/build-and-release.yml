@@ -252,7 +252,7 @@ jobs:
           if-no-files-found: error
 
   publish-release-draft:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+#    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs:
       - prepare
       # - build-node-se
