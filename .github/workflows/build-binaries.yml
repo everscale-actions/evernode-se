@@ -2,27 +2,20 @@
 
 on:
   push:
-    paths-ignore:
-      - "README.md"
-      - ".github/workflows/node-release-detection.yml"
     tags:
       - "*"
-  pull_request:
     paths-ignore:
       - "README.md"
       - ".github/workflows/node-release-detection.yml"
-  workflow_dispatch:
-    inputs:
-      tonos-se-version:
-        description: 'TON OS SE version'
-        required: true
+  pull_request:
+    types: [labeled]
 env:
   TONOS_SE_REPO_OWNER: tonlabs
   TONOS_SE_REPO_NAME: tonos-se
   TON_Q_SERVER_REPO_OWNER: tonlabs
   TON_Q_SERVER_REPO_NAME: ton-q-server
   ARANGODB_VERSION: 3.7.9
-  NGINX_VERSION: 1.19.7  
+  NGINX_VERSION: 1.19.7
   TONOS_SE_DEFAULT_VERSION: 0.28.5
 
 defaults:
@@ -30,6 +23,16 @@ defaults:
     shell: bash
 
 jobs:
+  labels:
+    name: Label taking off
+    if: github.event.label.name == 'start_tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Take off label
+        uses: actions/github-script@v1
+        with:
+          script: "github.issues.removeLabel({...context.issue, name: '${{ github.event.label.name }}' })"
+
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -44,20 +47,14 @@ jobs:
         with:
           script: |
             const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
-
-            const { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease(
-              {
-                owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', 
-                repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'
-              });
+            const { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease({owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'});
 
             let tonosSeVersion;
-            if ('${{ github.event.inputs.tonos-se-version }}') {
-              tonosSeVersion = '${{ github.event.inputs.tonos-se-version }}';
-            } else if ('${{ github.ref }}'.startsWith('refs/tags/')) {
+            if ('${{ github.ref }}'.startsWith('refs/tags/')) {
               tonosSeVersion = '${{ github.ref }}';            
             } else {
-              tonosSeVersion = '${{ env.TONOS_SE_DEFAULT_VERSION }}';
+              const { data: { tag_name: latestTONOSRelease } } = await github.repos.getLatestRelease({owner: '${{ env.TONOS_SE_REPO_OWNER }}', repo: '${{ env.TONOS_SE_REPO_NAME }}'});            
+              tonosSeVersion = latestTONOSRelease;
             }
 
             core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
@@ -67,7 +64,7 @@ jobs:
   # build-node-se:
   #   needs: prepare
   #   strategy:
-  #     matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}    
+  #     matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
   #   runs-on: ${{ matrix.runs-on }}
   #   steps:
   #     - name: Checkout tonos-se
@@ -76,14 +73,14 @@ jobs:
   #         repository: "${{ env.TONOS_SE_REPO_OWNER }}/${{ env.TONOS_SE_REPO_NAME }}"
   #         ref: ${{ needs.prepare.outputs.tonos-se-version }}
 
-  #     # - name: ⚡ Cache cargo
-  #     #   uses: actions/cache@v2
-  #     #   with:
-  #     #     path: |
-  #     #       ~/.cargo/registry
-  #     #       ~/.cargo/git
-  #     #     key: ${{ matrix.runs-on }}-cargoregistry-${{ hashFiles('ton-node-se/**/Cargo.toml') }}
-  #     #     restore-keys: ${{ matrix.runs-on }}-cargoregistry-
+  #     - name: ⚡ Cache cargo
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #         key: ${{ matrix.runs-on }}-cargoregistry-${{ hashFiles('ton-node-se/**/Cargo.toml') }}
+  #         restore-keys: ${{ matrix.runs-on }}-cargoregistry-
 
   #     # - name: 🔨 Generate Cargo.lock
   #     #   working-directory: ton-node-se
@@ -111,7 +108,7 @@ jobs:
   #         mkdir -p ton-node
   #         if [[ "${{ runner.os }}" == 'Windows' ]]; then
   #           cp ton-node-se/target/release/ton_node_startup.exe ton-node
-  #         else 
+  #         else
   #           cp ton-node-se/target/release/ton_node_startup ton-node
   #           chmod +x ton-node/ton_node_startup
   #         fi
@@ -252,7 +249,7 @@ jobs:
           if-no-files-found: error
 
   publish-release-draft:
-#    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    #    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs:
       - prepare
       # - build-node-se
@@ -288,8 +285,135 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifactErrorsFailBuild: true          
+          artifactErrorsFailBuild: true
           artifacts: "./artifacts/tonos-se-*.tar.gz*"
           commit: ${{ github.sha }}
           tag: ${{ needs.prepare.outputs.tonos-se-version }}
           token: ${{ github.token }}
+
+  tests:
+    if: github.event.label.name == 'start_tests' || github.event_name == 'push'
+    strategy:
+      matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Prepare envs
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.exportVariable('DEFAULT_PORTS_ARRAY', Object.values(JSON.parse(process.env.DEFAULT_PORTS)).join(','));
+            var customPorts = JSON.parse(process.env.CUSTOM_PORTS);
+            core.exportVariable('CUSTOM_PORTS_ARRAY', Object.values(customPorts).join(','));
+            Object.keys(customPorts).forEach((name) => core.exportVariable(`CUSTOM_PORTS_${name.toUpperCase()}`, customPorts[name]));
+
+      - name: "Use Node.js: 14.x OS: ${{matrix.os}}"
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - uses: actions/checkout@v2
+        with:
+          path: tonos-se
+
+      - uses: actions/checkout@v2
+        with:
+          repository: tonlabs/ton-client-js
+          path: ton-client-js
+
+      - name: Install tonos-se tools
+        working-directory: tonos-se
+        run: |
+          npm i
+          npm i -g
+
+      - name: Install Type Script
+        run: npm i -g typescript
+
+      - name: Build ton-client-js/packages/core
+        working-directory: ton-client-js/packages/core
+        run: |
+          npm i
+          tsc
+
+      - name: Build ton-client-js/packages/tests
+        working-directory: ton-client-js/packages/tests
+        run: |
+          npm i
+          tsc
+
+      - name: Restore packages ton-client-js/packages/tests-node
+        working-directory: ton-client-js/packages/tests-node
+        run: npm i
+
+      - name: Run TON OS SE
+        run: tonos-se start
+
+      - name: Ensure that ports are opened
+        uses: nrukavkov/open-ports-check-action@v1
+        with:
+          port: ${{ env.DEFAULT_PORTS_ARRAY }}
+          needFail: "true"
+
+      - name: Run tests
+        working-directory: ton-client-js/packages/tests-node
+        env:
+          USE_NODE_SE: true
+          TON_NETWORK_ADDRESS: http://localhost:${{ fromJson(env.DEFAULT_PORTS).nginx }}
+        run: node run
+
+      - name: Stop TON OS SE
+        run: tonos-se stop
+
+      - name: Ensure that ports are closed
+        uses: nrukavkov/open-ports-check-action@v1
+        with:
+          port: ${{ env.DEFAULT_PORTS_ARRAY }}
+          needFail: "true"
+          reverse: "true"
+
+      - name: Change default ports
+        run: |
+          tonos-se config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }} --ton-node-adnl-port ${{ env.CUSTOM_PORTS_ADNL }}
+
+      - name: Run TON OS SE
+        run: tonos-se start
+
+      - name: Ensure that ports are opened
+        uses: nrukavkov/open-ports-check-action@v1
+        with:
+          port: ${{ env.CUSTOM_PORTS_ARRAY }}
+          needFail: "true"
+
+      - name: Run tests
+        working-directory: ton-client-js/packages/tests-node
+        env:
+          USE_NODE_SE: true
+          TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
+        run: node run
+
+      - name: Stop TON OS SE
+        run: tonos-se stop
+
+      - name: Ensure that ports are closed
+        uses: nrukavkov/open-ports-check-action@v1
+        with:
+          port: ${{ env.CUSTOM_PORTS_ARRAY }}
+          needFail: "true"
+          reverse: "true"
+
+  publish:
+    needs: tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.1.5
+      - uses: JS-DevTools/npm-publish@v1
+        id: npm-publish
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+      - uses: tvdias/github-tagger@v0.0.2
+        if: ${{ steps.npm-publish.outputs.type != 'none' && steps.npm-publish.outputs.dry-run != 'true' }}
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "v${{ steps.npm-publish.outputs.version }}"

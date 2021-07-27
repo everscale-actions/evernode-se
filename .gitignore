@@ -103,9 +103,12 @@ dist
 # TernJS port file
 .tern-port
 
+# Node SE server and cache dirs
+.server
+.cache
 
-# ignore rider
-.idea/
+# Rider IDE
+.idea
 
-# ignore secret
-.secrets
+# macOS
+.DS_Store
