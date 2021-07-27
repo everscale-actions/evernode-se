@@ -274,7 +274,7 @@ jobs:
           for os in "${osArray[@]}"
           do
             echo "Creating archive tonos-se-$os.tar.gz"
-            tar --concatenate --file=tonos-se-$os.tar ton-node-$os/ton-node-$os.tar
+            # tar --concatenate --file=tonos-se-$os.tar ton-node-$os/ton-node-$os.tar
             tar --concatenate --file=tonos-se-$os.tar arango-$os/arango-$os.tar              
             tar --concatenate --file=tonos-se-$os.tar nginx-$os/nginx-$os.tar
             tar --concatenate --file=tonos-se-$os.tar q-server-$os/q-server-$os.tar
