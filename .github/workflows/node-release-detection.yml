@@ -2,8 +2,8 @@ name: New TON OS SE release detection
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
+  # schedule:
+  #   - cron: "0 0 * * *"
 
 env:
   TONOS_SE_REPO_OWNER: tonlabs
