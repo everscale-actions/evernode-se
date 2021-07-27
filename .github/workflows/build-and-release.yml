@@ -137,7 +137,7 @@ jobs:
         uses: actions/github-script@v3.1.0
         with:
           script: |
-            const config = require(`${process.env.GITHUB_WORKSPACE}/config.arangodb.js`)(`${process.env.ARANGODB_VERSION}`)
+            const config = require(`${process.env.GITHUB_WORKSPACE}/arangodb/config.js`)(`${process.env.ARANGODB_VERSION}`)
             core.exportVariable('PATH_IN_ARCHIVE', config["${{ matrix.os }}"].pathInArchive)
             core.exportVariable('URL', config["${{ matrix.os }}"].url)
 
