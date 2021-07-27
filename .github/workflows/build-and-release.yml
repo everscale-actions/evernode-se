@@ -290,5 +290,6 @@ jobs:
           allowUpdates: true
           artifactErrorsFailBuild: true          
           artifacts: "./artifacts/tonos-se-*.tar.gz*"
+          commit: ${{ github.sha }}
           tag: ${{ needs.prepare.outputs.tonos-se-version }}
           token: ${{ github.token }}
