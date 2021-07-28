@@ -54,7 +54,6 @@
         "semver": "^7.3.5",
         "tar": "^6.1.2",
         "tcp-port-used": "^1.0.2",
-        "tonos-se-bin": "file:tonos-se-bin-0.28.5.tgz",
         "yaml": "^1.10.2"
     },
     "devDependencies": {

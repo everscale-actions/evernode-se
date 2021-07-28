@@ -63,32 +63,31 @@ jobs:
   build-node-se:
     if: github.event.label.name == 'start_tests' || github.event_name == 'push'
     needs: prepare
+    runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
-    runs-on: ${{ matrix.runs-on }}
+      matrix:
+        os: [Linux, Windows, macOS]
     steps:
-      - name: Download binaries
+      - name: Download binaries and tar node se startup bin
         run: |
-          version = ${{ needs.prepare.outputs.tonos-se-version }}
-          wget https://github.com/ton-actions/build-ton-node-startup/releases/download/$version/ton-node-${{ runner.os }}-$version.tar.gz
-          tar -xvzf ton-node-${{ runner.os }}-$version.tar.gz
-
-      - name: 🔨 TAR node binaries
-        run: |
+          version=${{ needs.prepare.outputs.tonos-se-version }}
+          os=${{ matrix.os }}
+          wget https://github.com/ton-actions/build-ton-node-startup/releases/download/$version/ton-node-$os-$version.tar.gz
+          tar -xvzf ton-node-$os-$version.tar.gz
           mkdir -p ton-node
-          if [[ "${{ runner.os }}" == 'Windows' ]]; then
-            mv ton_node_startup.exe ton-node
+          if [[ $os == 'Windows' ]]; then
+            mv ton_node_startup.exe ton-node/
           else
-            mv ton_node_startup ton-node
+            mv ton_node_startup ton-node/
             chmod +x ton-node/ton_node_startup
           fi
-          tar -cvf ton-node-${{ runner.os }}.tar ton-node
+          tar -cvf ton-node-$os.tar ton-node
 
-      - name: 📚 Publish artifact
+      - name: 📚 Publish artifact ${{ matrix.os }}
         uses: actions/upload-artifact@v2
         with:
-          name: ton-node-${{ runner.os }}
-          path: ton-node-${{ runner.os }}.tar
+          name: ton-node-${{ matrix.os }}
+          path: ton-node-${{ matrix.os }}.tar
           if-no-files-found: error
 
   build-arango:
@@ -247,7 +246,7 @@ jobs:
           do
             tarFile=tonos-se-$os-$releaseTag.tar
             echo "Creating archive tonos-se-$os.tar.gz"
-            # tar --concatenate --file=$tarFile ton-node-$os/ton-node-$os.tar
+            tar --concatenate --file=$tarFile ton-node-$os/ton-node-$os.tar
             tar --concatenate --file=$tarFile arango-$os/arango-$os.tar              
             tar --concatenate --file=$tarFile nginx-$os/nginx-$os.tar
             tar --concatenate --file=$tarFile q-server-$os/q-server-$os.tar
@@ -286,9 +285,9 @@ jobs:
             Object.keys(customPorts).forEach((name) => core.exportVariable(`CUSTOM_PORTS_${name.toUpperCase()}`, customPorts[name]));
 
       - name: "Use Node.js: 14.x OS: ${{matrix.os}}"
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: "14"
 
       - uses: actions/checkout@v2
         with:
@@ -302,7 +301,7 @@ jobs:
       - name: Install tonos-se tools
         working-directory: tonos-se
         run: |
-          npm i
+          npm ci
           npm i -g
 
       - name: Install Type Script
@@ -325,7 +324,7 @@ jobs:
         run: npm i
 
       - name: Run TON OS SE
-        run: tonos-se start
+        run: tonos-se-bin start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -341,7 +340,7 @@ jobs:
         run: node run
 
       - name: Stop TON OS SE
-        run: tonos-se stop
+        run: tonos-se-bin stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
@@ -352,10 +351,10 @@ jobs:
 
       - name: Change default ports
         run: |
-          tonos-se config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }} --ton-node-adnl-port ${{ env.CUSTOM_PORTS_ADNL }}
+          tonos-se-bin config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }} --ton-node-adnl-port ${{ env.CUSTOM_PORTS_ADNL }}
 
       - name: Run TON OS SE
-        run: tonos-se start
+        run: tonos-se-bin start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -371,7 +370,7 @@ jobs:
         run: node run
 
       - name: Stop TON OS SE
-        run: tonos-se stop
+        run: tonos-se-bin stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
