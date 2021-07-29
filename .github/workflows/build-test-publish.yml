@@ -180,7 +180,7 @@ jobs:
       - name: Download nginx
         working-directory: nginx
         run: |
-          npm install
+          npm ci
           npm run download
           cp mime.types nginx/mime.types
       - run: tar -C nginx -cvf nginx-${{ runner.os }}.tar nginx
