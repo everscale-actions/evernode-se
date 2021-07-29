@@ -392,8 +392,3 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
-      - uses: tvdias/github-tagger@v0.0.2
-        if: ${{ steps.npm-publish.outputs.type != 'none' && steps.npm-publish.outputs.dry-run != 'true' }}
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "v${{ steps.npm-publish.outputs.version }}"
