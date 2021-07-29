@@ -1,4 +1,4 @@
-﻿name: Build and Release TON OS SE binaries
+﻿name: Build, Test and Publish TON OS SE binaries
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];
+            const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];            
             const { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease({owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'});
             const { version: releaseTag, tonosSeVersion: tonosSeVersion } = require(`${process.env.GITHUB_WORKSPACE}/package.json`);
 
