@@ -16,6 +16,7 @@ env:
   TONOS_SE_REPO_NAME: tonos-se
   TON_Q_SERVER_REPO_OWNER: tonlabs
   TON_Q_SERVER_REPO_NAME: ton-q-server
+  BUILD_TON_NODE_REPO: ton-actions/build-ton-node-startup
   ARANGODB_VERSION: 3.7.9
   NGINX_VERSION: 1.19.7
   DEFAULT_PORTS: '{"nginx":8080,"arango":8529,"qserver":4000,"node":40301,"requests":3000}'
@@ -72,7 +73,7 @@ jobs:
         run: |
           version=${{ needs.prepare.outputs.tonos-se-version }}
           os=${{ matrix.os }}
-          wget https://github.com/ton-actions/build-ton-node-startup/releases/download/$version/ton-node-$os-$version.tar.gz
+          wget https://github.com/${{ env.BUILD_TON_NODE_REPO }}/releases/download/$version/ton-node-$os-$version.tar.gz
           tar -xvzf ton-node-$os-$version.tar.gz
           mkdir -p ton-node
           if [[ $os == 'Windows' ]]; then
