@@ -325,7 +325,7 @@ jobs:
         run: npm i
 
       - name: Run TON OS SE
-        run: tonos-se-bin start
+        run: tonos-se-package start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -341,7 +341,7 @@ jobs:
         run: node run
 
       - name: Stop TON OS SE
-        run: tonos-se-bin stop
+        run: tonos-se-package stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
@@ -352,10 +352,10 @@ jobs:
 
       - name: Change default ports
         run: |
-          tonos-se-bin config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }}
+          tonos-se-package config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }}
 
       - name: Run TON OS SE
-        run: tonos-se-bin start
+        run: tonos-se-package start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -371,7 +371,7 @@ jobs:
         run: node run
 
       - name: Stop TON OS SE
-        run: tonos-se-bin stop
+        run: tonos-se-package stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
@@ -381,7 +381,7 @@ jobs:
           reverse: "true"
 
   publish-npm:
-    needs: tests
+    needs: [tests, prepare]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -392,3 +392,4 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
+          tag: _${{ needs.prepare.outputs.tonos-se-version }}

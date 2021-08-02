@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const commandLineArgs = require('command-line-args');
 const getUsage = require('command-line-usage');
 const boxen = require('boxen');
@@ -49,11 +48,11 @@ async function main() {
             { name: '--ton-node-port', summary: 'Set listening port for Ton Node' },
             { name: '--ton-node-kafka-msg-port', summary: 'Set listening port for Ton Node Kafka' },
             { name: '--arango-port', summary: 'Set listening port for ArangoDB' },
-            { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline ton-actions/tonos-se-binaries}' },
+            { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline ton-actions/tonos-se-package}' },
           ],
         },
         {
-          content: 'Project home: {underline https://github.com/ton-actions/tonos-se-bin}',
+          content: 'Project home: {underline https://github.com/ton-actions/tonos-se-pa}',
         },
       ];
 

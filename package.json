@@ -1,6 +1,6 @@
 {
     "name": "@ton-actions/tonos-se-package",
-    "version": "0.28.6-fix.3",
+    "version": "0.28.6-fix.4",
     "tonosSeVersion" : "0.28.6",
     "author": "Free TON Actions",
     "license": "Apache-2.0",
@@ -15,7 +15,7 @@
     },
     "main": "./lib/tonos-se.js",
     "bin": {
-        "tonos-se-bin": "./bin/tonos-se.js"
+        "tonos-se-package": "./bin/tonos-se-package.js"
     },
     "repository": {
         "type": "git",
