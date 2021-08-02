@@ -48,6 +48,7 @@ async function main() {
             { name: '--nginx-port', summary: 'Set listening port for Nginx' },
             { name: '--ton-node-port', summary: 'Set listening port for Ton Node' },
             { name: '--ton-node-kafka-msg-port', summary: 'Set listening port for Ton Node Kafka' },
+            { name: '--ton-node-adnl-port', summary: 'Set listening port for Ton Node ADNL' },
             { name: '--arango-port', summary: 'Set listening port for ArangoDB' },
             { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline ton-actions/tonos-se-package}' },
           ],
@@ -112,6 +113,7 @@ async function main() {
         { name: 'ton-node-port', type: Number },
         { name: 'q-server-port', type: Number },
         { name: 'ton-node-kafka-msg-port', type: Number },
+        { name: 'ton-node-adnl-port', type: Number },
         { name: 'github-binaries-repository', type: String },
       ];
 
