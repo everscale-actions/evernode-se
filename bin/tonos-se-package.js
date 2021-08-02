@@ -4,6 +4,7 @@ const getUsage = require('command-line-usage');
 const boxen = require('boxen');
 const PortsAlreadyInUseError = require('../lib/errors/ports-already-in-use');
 const tonos = require('../lib/tonos-se');
+const appName = Object.keys(require('../package.json').bin)[0];
 
 /* first - parse the main command */
 const mainDefinitions = [
@@ -27,7 +28,7 @@ async function main() {
         },
         {
           header: 'Synopsis',
-          content: `$ ${global.appName} <command> <options>`,
+          content: `$ ${appName} <command> <options>`,
         },
         {
           header: 'Command List',
@@ -70,7 +71,7 @@ async function main() {
         if (ex instanceof PortsAlreadyInUseError) {
           ex.statuses
             .forEach((ps) => process.stderr.write(`Service ${ps.serviceName} port ${ps.port} is already in use\n`));
-          process.stderr.write(`Please change service port using command 'config <paramters>'. To get more details use '${global.appName} help'\n`);
+          process.stderr.write(`Please change service port using command 'config <paramters>'. To get more details use '${appName} help'\n`);
           return;
         }
         throw ex;
@@ -129,7 +130,7 @@ async function main() {
       break;
     }
     default:
-      process.stdout.write(`Unknown command. Use command '${global.appName} help' to list available commands\n`);
+      process.stdout.write(`Unknown command. Use command '${appName} help' to list available commands\n`);
       break;
   }
 }
