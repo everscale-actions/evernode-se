@@ -1,7 +1,6 @@
 {
     "name": "@ton-actions/tonos-se-package",
     "version": "0.28.6-fix.8",
-    "tonosSeVersion": "0.28.6",
     "author": "Free TON Actions",
     "license": "Apache-2.0",
     "engines": {
