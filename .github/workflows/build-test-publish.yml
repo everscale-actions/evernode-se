@@ -264,7 +264,7 @@ jobs:
           artifactErrorsFailBuild: true
           artifacts: "./artifacts/tonos-se-*.tar.gz*"
           commit: ${{ github.sha }}
-          tag: "release-${{ needs.prepare.outputs.release-tag }}"
+          tag: ${{ needs.prepare.outputs.release-tag }}
           token: ${{ github.token }}
 
   tests:
