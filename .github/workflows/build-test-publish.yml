@@ -297,7 +297,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tonlabs/ton-client-js
-          path: ton-client-js
+          ref: '1.21.2'          
+          path: ton-client-js          
 
       - name: Install tonos-se tools
         working-directory: tonos-se
