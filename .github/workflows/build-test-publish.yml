@@ -18,6 +18,7 @@ env:
   NGINX_VERSION: 1.19.7
   DEFAULT_PORTS: '{"nginx":8080,"arango":8529,"qserver":4000,"node":40301,"requests":3000}'
   CUSTOM_PORTS: '{"nginx":8881,"arango":8882,"qserver":8883,"node":8884,"requests":8885}'
+  NODE_OPTIONS: '--max_old_space_size=4096'
 
 defaults:
   run:
@@ -294,7 +295,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tonlabs/ton-client-js
-          ref: '1.21.2'          
           path: ton-client-js          
 
       - name: Install tonos-se tools
@@ -366,7 +366,7 @@ jobs:
         env:
           USE_NODE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
-        run: node run
+        run: node --max_old_space_size=8000 run
 
       - name: Stop TON OS SE
         run: tonos-se-package stop
