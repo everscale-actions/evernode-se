@@ -43,6 +43,7 @@ jobs:
       q-server-version: ${{ steps.set-matrix.outputs.q-server-version }}
       release-tag: ${{ steps.set-matrix.outputs.release-tag }}
       tonos-se-version: ${{ steps.set-matrix.outputs.tonos-se-version }}
+      package-name: ${{ steps.set-matrix.outputs.package-name }}      
     steps:
       - uses: actions/checkout@v2
       - name: Get TONOS SE Releases and Set matrix
@@ -52,13 +53,18 @@ jobs:
           script: |
             const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];            
             const { data: { tag_name: latestQServerRelease } } = await github.repos.getLatestRelease({owner: '${{ env.TON_Q_SERVER_REPO_OWNER }}', repo: '${{ env.TON_Q_SERVER_REPO_NAME }}'});
-            const { version: releaseTag } = require(`${process.env.GITHUB_WORKSPACE}/package.json`);
+            const { version: releaseTag, name: packageName } = require(`${process.env.GITHUB_WORKSPACE}/package.json`);
+
+            const majorTag = version.split('.', 1)[0];
+            const minorTag = version.split('.', 2).join('.');           
 
             core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
             core.setOutput('q-server-version', latestQServerRelease);            
             core.setOutput('release-tag', releaseTag);
             core.setOutput('tonos-se-version', releaseTag.split('-')[0]);
-
+            core.setOutput('major-tag', majorTag);
+            core.setOutput('minor-tag', minorTag);
+            core.setOutput('package-name', packageName);                        
   build-node-se:
     if: github.event.label.name == 'start_tests' || github.event_name == 'push'
     needs: prepare
@@ -391,3 +397,9 @@ jobs:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
           tag: _${{ needs.prepare.outputs.tonos-se-version }}
+      - env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} _${{ needs.prepare.outputs.minor-tag }}
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} _${{ needs.prepare.outputs.major-tag }}          
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} latest                    
