@@ -4,11 +4,8 @@ on:
   push:
     tags:
       - "release-*"
-    branches:
-      - "main"
     paths-ignore:
       - "README.md"
-      - ".github/workflows/node-release-detection.yml"
   pull_request:
     types: [labeled]
 env:
