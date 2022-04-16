@@ -3,22 +3,22 @@
 on:
   push:
     tags:
-      - "release-*"
+      - "*"
     paths-ignore:
       - "README.md"
   pull_request:
     types: [labeled]
 env:
   TONOS_SE_REPO_OWNER: tonlabs
-  TONOS_SE_REPO_NAME: tonos-se
+  TONOS_SE_REPO_NAME: evernode-se
   TON_Q_SERVER_REPO_OWNER: tonlabs
   TON_Q_SERVER_REPO_NAME: ton-q-server
-  BUILD_TON_NODE_REPO: ton-actions/build-ton-node-startup
+  BUILD_TON_NODE_REPO: everscale-actions/build-evernode-se
   ARANGODB_VERSION: 3.7.9
   NGINX_VERSION: 1.19.7
   DEFAULT_PORTS: '{"nginx":8080,"arango":8529,"qserver":4000,"node":40301,"requests":3000}'
   CUSTOM_PORTS: '{"nginx":8881,"arango":8882,"qserver":8883,"node":8884,"requests":8885}'
-  NODE_OPTIONS: '--max_old_space_size=4096'
+  NODE_OPTIONS: "--max_old_space_size=4096"
 
 defaults:
   run:
@@ -42,11 +42,11 @@ jobs:
       runner-matrix: ${{ steps.set-matrix.outputs.runner-matrix }}
       q-server-version: ${{ steps.set-matrix.outputs.q-server-version }}
       release-tag: ${{ steps.set-matrix.outputs.release-tag }}
-      tonos-se-version: ${{ steps.set-matrix.outputs.tonos-se-version }}
-      package-name: ${{ steps.set-matrix.outputs.package-name }}      
+      evernode-se-version: ${{ steps.set-matrix.outputs.evernode-se-version }}
+      package-name: ${{ steps.set-matrix.outputs.package-name }}
     steps:
       - uses: actions/checkout@v2
-      - name: Get TONOS SE Releases and Set matrix
+      - name: Get Evernode SE Releases and Set matrix
         id: set-matrix
         uses: actions/github-script@v3
         with:
@@ -61,10 +61,10 @@ jobs:
             core.setOutput('runner-matrix', JSON.stringify({include: runners.map(runner=>({'runs-on': runner}))}));
             core.setOutput('q-server-version', latestQServerRelease);            
             core.setOutput('release-tag', releaseTag);
-            core.setOutput('tonos-se-version', releaseTag.split('-')[0]);
+            core.setOutput('evernode-se-version', releaseTag.split('-')[0]);
             core.setOutput('major-tag', majorTag);
             core.setOutput('minor-tag', minorTag);
-            core.setOutput('package-name', packageName);                        
+            core.setOutput('package-name', packageName);
   build-node-se:
     if: github.event.label.name == 'start_tests' || github.event_name == 'push'
     needs: prepare
@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: Download binaries and tar node se startup bin
         run: |
-          version=${{ needs.prepare.outputs.tonos-se-version }}
+          version=${{ needs.prepare.outputs.evernode-se-version }}
           os=${{ matrix.os }}
           wget https://github.com/${{ env.BUILD_TON_NODE_REPO }}/releases/download/$version/ton-node-$os-$version.tar.gz
           tar -xvzf ton-node-$os-$version.tar.gz
@@ -200,17 +200,17 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout tonos-se
+      - name: Checkout evernode-se
         uses: actions/checkout@v2
         with:
-          path: tonos-se
-          repository: "tonlabs/tonos-se"
+          path: evernode-se
+          repository: "tonlabs/evernode-se"
           ref: ${{ env.TONOS_SE_VERSION }}
 
-      - name: Copy additional files from tonos-se repos
+      - name: Copy additional files from evernode-se repos
         run: |
           mkdir -p configs          
-          cp -r tonos-se/docker/* configs/
+          cp -r evernode-se/docker/* configs/
           cd configs               
           rm Dockerfile
           rm Procfile
@@ -249,8 +249,8 @@ jobs:
           declare -a osArray=("Linux" "Windows" "macOS")          
           for os in "${osArray[@]}"
           do
-            tarFile=tonos-se-$os-$releaseTag.tar
-            echo "Creating archive tonos-se-$os.tar.gz"
+            tarFile=evernode-se-$os-$releaseTag.tar
+            echo "Creating archive evernode-se-$os.tar.gz"
             tar --concatenate --file=$tarFile ton-node-$os/ton-node-$os.tar
             tar --concatenate --file=$tarFile arango-$os/arango-$os.tar              
             tar --concatenate --file=$tarFile nginx-$os/nginx-$os.tar
@@ -266,7 +266,7 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
-          artifacts: "./artifacts/tonos-se-*.tar.gz*"
+          artifacts: "./artifacts/evernode-se-*.tar.gz*"
           commit: ${{ github.sha }}
           tag: ${{ needs.prepare.outputs.release-tag }}
           token: ${{ github.token }}
@@ -296,15 +296,15 @@ jobs:
 
       - uses: actions/checkout@v2
         with:
-          path: tonos-se
+          path: evernode-se
 
       - uses: actions/checkout@v2
         with:
           repository: tonlabs/ton-client-js
-          path: ton-client-js          
+          path: ton-client-js
 
-      - name: Install tonos-se tools
-        working-directory: tonos-se
+      - name: Install evernode-se tools
+        working-directory: evernode-se
         run: |
           npm i
           npm i -g
@@ -329,7 +329,7 @@ jobs:
         run: npm i
 
       - name: Run TON OS SE
-        run: tonos-se-package start
+        run: evernode-se start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -345,7 +345,7 @@ jobs:
         run: node run
 
       - name: Stop TON OS SE
-        run: tonos-se-package stop
+        run: evernode-se stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
@@ -356,10 +356,10 @@ jobs:
 
       - name: Change default ports
         run: |
-          tonos-se-package config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }}
+          evernode-se config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --ton-node-port ${{ env.CUSTOM_PORTS_NODE }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-kafka-msg-port ${{ env.CUSTOM_PORTS_REQUESTS }}
 
       - name: Run TON OS SE
-        run: tonos-se-package start
+        run: evernode-se start
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
@@ -375,7 +375,7 @@ jobs:
         run: node --max_old_space_size=8000 run
 
       - name: Stop TON OS SE
-        run: tonos-se-package stop
+        run: evernode-se stop
 
       - name: Ensure that ports are closed
         uses: nrukavkov/open-ports-check-action@v1
@@ -396,10 +396,10 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
-          tag: _${{ needs.prepare.outputs.tonos-se-version }}
+          tag: _${{ needs.prepare.outputs.evernode-se-version }}
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} _${{ needs.prepare.outputs.minor-tag }}
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} _${{ needs.prepare.outputs.major-tag }}          
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.tonos-se-version }} latest                    
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} _${{ needs.prepare.outputs.minor-tag }}
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} _${{ needs.prepare.outputs.major-tag }}          
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} latest

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-const commandLineArgs = require('command-line-args');
-const getUsage = require('command-line-usage');
-const boxen = require('boxen');
-const PortsAlreadyInUseError = require('../lib/errors/ports-already-in-use');
-const tonos = require('../lib/tonos-se');
-const appName = Object.keys(require('../package.json').bin)[0];
+import boxen from 'boxen';
+import commandLineArgs from 'command-line-args';
+import getUsage from 'command-line-usage';
+import PortsAlreadyInUseError from '../lib/errors/ports-already-in-use.js';
+import evernode from '../lib/evernode-se.js';
+
+const appName = global.packageJson.bin[0];
 
 /* first - parse the main command */
 const mainDefinitions = [
@@ -23,7 +24,7 @@ async function main() {
     case 'help': {
       const sections = [
         {
-          header: 'TONOS SE CLI',
+          header: 'Evernode SE CLI',
           content: 'Easy install, configure and manage TON OS Startup Edition without Docker.',
         },
         {
@@ -49,11 +50,11 @@ async function main() {
             { name: '--ton-node-port', summary: 'Set listening port for Ton Node' },
             { name: '--ton-node-kafka-msg-port', summary: 'Set listening port for Ton Node Kafka' },
             { name: '--arango-port', summary: 'Set listening port for ArangoDB' },
-            { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline ton-actions/tonos-se-package}' },
+            { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline everscale-actions/evernode-se}' },
           ],
         },
         {
-          content: 'Project home: {underline https://github.com/ton-actions/tonos-se-pa}',
+          content: 'Project home: {underline https://github.com/everscale-actions/evernode-se-pa}',
         },
       ];
 
@@ -63,10 +64,10 @@ async function main() {
     case 'start':
     case 'restart': {
       if (mainOptions.command === 'restart') {
-        await tonos.stop();
+        await evernode.stop();
       }
       try {
-        await tonos.start();
+        await evernode.start();
       } catch (ex) {
         if (ex instanceof PortsAlreadyInUseError) {
           ex.statuses
@@ -86,18 +87,18 @@ async function main() {
       break;
     }
     case 'stop':
-      await tonos.stop();
+      await evernode.stop();
       break;
     case 'reset': {
-      await tonos.reset(false);
+      await evernode.reset(false);
       break;
     }
     case 'remove': {
-      await tonos.reset(true);
+      await evernode.reset(true);
       break;
     }
     case 'status': {
-      const statuses = await tonos.status();
+      const statuses = await evernode.status();
       statuses.forEach((s) => {
         const statusText = s.isRunning ? `running. [PID:${s.pid} PORTS:${s.portStatuses.map((p) => p.port)}]` : 'stopped';
         process.stdout.write(`Service ${s.serviceName} is ${statusText}\n`);
@@ -118,14 +119,14 @@ async function main() {
       // show current config
       const config = commandLineArgs(configDefenitions, { argv });
       if (Object.keys(config).length === 0) {
-        process.stdout.write(`${cj(tonos.config.get())}\n`);
+        process.stdout.write(`${cj(evernode.config.get())}\n`);
       } else {
-        tonos.config.set(config);
+        evernode.config.set(config);
       }
       break;
     }
     case 'version': {
-      const version = await tonos.version();
+      const version = await evernode.version();
       process.stdout.write(`${cj(version)}\n`);
       break;
     }
