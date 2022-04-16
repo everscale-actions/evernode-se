@@ -290,10 +290,10 @@ jobs:
             core.exportVariable('CUSTOM_PORTS_ARRAY', Object.values(customPorts).join(','));
             Object.keys(customPorts).forEach((name) => core.exportVariable(`CUSTOM_PORTS_${name.toUpperCase()}`, customPorts[name]));
 
-      - name: "Use Node.js: 14.x OS: ${{matrix.os}}"
+      - name: "Use Node.js: 16.x OS: ${{matrix.os}}"
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: "16"
 
       - uses: actions/checkout@v2
         with:
