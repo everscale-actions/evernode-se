@@ -65,5 +65,5 @@ NGINX_VERSION: 1.19.7
 
 ## Push new version
 ```sh
-tag=`jq -r .version package.json`; git tag $tag -f; git push --tags -f
+tag=`jq -r .version package.json`;git add .; git commit -m $tag; git tag $tag -f; git push --tags -f
 ```
