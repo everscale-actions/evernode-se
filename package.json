@@ -1,6 +1,6 @@
 {
     "name": "@everscale-actions/evernode-se",
-    "version": "0.25.0",
+    "version": "0.26.1",
     "author": "Everscale Actions",
     "license": "Apache-2.0",
     "type": "module",
