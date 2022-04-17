@@ -1,6 +1,8 @@
 ﻿name: Build, Test and Publish TON OS SE binaries
 
-concurrency: "only-one"
+concurrency:
+  group: "only-one-release"
+  cancel-in-progress: false
 
 on:
   push:
