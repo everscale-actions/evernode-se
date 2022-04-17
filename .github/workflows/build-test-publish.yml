@@ -403,6 +403,6 @@ jobs:
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} _${{ needs.prepare.outputs.minor-tag }}
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} _${{ needs.prepare.outputs.major-tag }}          
-          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.evernode-se-version }} latest
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.minor-tag }}
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.major-tag }}          
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} latest
