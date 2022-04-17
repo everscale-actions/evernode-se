@@ -12,10 +12,10 @@ Almost all GitHub Jobs in [build-and-release.yml](https://github.com/everscale-a
 
 > Each night a special workflow file checks a new verion of [Evernode OS Startup Edition](https://github.com/tonlabs/evernode-se). If detects a new verision, [node-release-detection.yml](https://github.com/everscale-actions/evernode-se-binaries/blob/main/.github/workflows/node-release-detection.yml) initiation a process of building and publishing a new release of application pack.
 
-| Matrix | Ever Node | Nginx | Arango DB | Q Server |
-| --- | --- | --- | --- | --- |
-| OS: [ ubuntu-18.04, macos-10.15, windows-2019 ] | x | x | x | x |
-| Ever Node SE versions: [ 0.24.12, 0.24.13, 0.25.0 ] | x | - | - | - |
+| Matrix                                              | Ever Node | Nginx | Arango DB | Q Server |
+| --------------------------------------------------- | --------- | ----- | --------- | -------- |
+| OS: [ ubuntu-18.04, macos-10.15, windows-2019 ]     | x         | x     | x         | x        |
+| Ever Node SE versions: [ 0.24.12, 0.24.13, 0.25.0 ] | x         | -     | -         | -        |
 
 Version of applications can be changed by settings ENV variables in [build-and-release.yml](https://github.com/everscale-actions/evernode-se-binaries/blob/main/.github/workflows/build-and-release.yml). 
 
@@ -65,5 +65,5 @@ NGINX_VERSION: 1.19.7
 
 ## Push new version
 ```sh
-tag=`jq -r .version package.json`; git tag $tag -f; git push --tags -f
+tag=`jq -r .version package.json`;git add .; git commit -m $tag; git tag $tag -f; git push --tags -f
 ```
