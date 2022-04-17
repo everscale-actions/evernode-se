@@ -395,16 +395,19 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2.1.5
-      - uses: JS-DevTools/npm-publish@v1
-        id: npm-publish
+      - uses: actions/setup-node@v3
         with:
-          token: ${{ secrets.NPM_TOKEN }}
-          access: public
-          tag: _${{ needs.prepare.outputs.evernode-se-version }}
-      - env:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+      - run: npm publish --access public
+        env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
+      - run: npm install
+      - run: |
+          npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.evernode-se-version }}
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.minor-tag }}
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.major-tag }}          
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
