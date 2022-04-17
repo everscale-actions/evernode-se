@@ -61,3 +61,9 @@ NGINX_VERSION: 1.19.7
 - Download all workflow run artifacts
 - Merge tar files
 - Upload Release Artifact
+
+
+## Push new version
+```sh
+tag=`jq -r .version package.json`; git tag $tag -f; git push --tags -f
+```
