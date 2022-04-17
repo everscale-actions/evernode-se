@@ -5,7 +5,7 @@ import getUsage from 'command-line-usage';
 import PortsAlreadyInUseError from '../lib/errors/ports-already-in-use.js';
 import evernode from '../lib/evernode-se.js';
 
-const appName = global.packageJson.bin[0];
+const appName = Object.keys(global.packageJson.bin)[0];
 
 /* first - parse the main command */
 const mainDefinitions = [
@@ -25,7 +25,7 @@ async function main() {
       const sections = [
         {
           header: 'Evernode SE CLI',
-          content: 'Easy install, configure and manage TON OS Startup Edition without Docker.',
+          content: 'Easy install, configure and manage Evernode Startup Edition without Docker.',
         },
         {
           header: 'Synopsis',

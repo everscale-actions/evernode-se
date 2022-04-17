@@ -44,6 +44,8 @@ jobs:
       release-tag: ${{ steps.set-matrix.outputs.release-tag }}
       evernode-se-version: ${{ steps.set-matrix.outputs.evernode-se-version }}
       package-name: ${{ steps.set-matrix.outputs.package-name }}
+      major-tag: ${{ steps.set-matrix.outputs.major-tag }}
+      minor-tag: ${{ steps.set-matrix.outputs.minor-tag }}
     steps:
       - uses: actions/checkout@v2
       - name: Get Evernode SE Releases and Set matrix
