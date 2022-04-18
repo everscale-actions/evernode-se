@@ -405,10 +405,8 @@ jobs:
         with:
           node-version: "16"
       - run: npm install
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: |
+          npm publish --access public
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.evernode-se-version }}
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.minor-tag }}
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.major-tag }}          
