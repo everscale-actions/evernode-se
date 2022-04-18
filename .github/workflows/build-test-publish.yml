@@ -404,8 +404,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          registry-url: "https://registry.npmjs.org"
       - run: npm install
       - run: |
           npm publish --access public
@@ -413,3 +412,5 @@ jobs:
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.minor-tag }}
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} _${{ needs.prepare.outputs.major-tag }}          
           npm dist-tag add ${{ needs.prepare.outputs.package-name }}@${{ needs.prepare.outputs.release-tag }} latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
