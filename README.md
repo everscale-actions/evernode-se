@@ -19,6 +19,9 @@ npx -y @everscale-actions/evernode-se@latest help
 
 ### Select special version of Evernode SE
 Use tag for select needed vesion. You can use latest or '_major[.minor[.patch]]' tag format.
+
+Availible tags can be found at https://www.npmjs.com/package/@everscale-actions/evernode-se?activeTab=versions
+
 Examples:
 ```
 npx -y @everscale-actions/evernode-se@_0 [command]
