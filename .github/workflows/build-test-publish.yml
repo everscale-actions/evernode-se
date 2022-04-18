@@ -301,7 +301,6 @@ jobs:
         with:
           node-version: "16"
           registry-url: "https://registry.npmjs.org"
-          cache: "npm"
 
       - uses: actions/checkout@v2
         with:
