@@ -54,7 +54,7 @@ async function main() {
           ],
         },
         {
-          content: 'Project home: {underline https://github.com/everscale-actions/evernode-se-pa}',
+          content: 'Project home: {underline https://github.com/everscale-actions/evernode-se}',
         },
       ];
 
