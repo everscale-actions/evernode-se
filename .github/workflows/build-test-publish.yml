@@ -19,7 +19,7 @@ env:
   TON_Q_SERVER_REPO_NAME: ton-q-server
   TON_CLIENT_JS_OWNER: tonlabs
   TON_CLIENT_JS_REPO: ton-client-js
-  TON_CLIENT_JS_REF: 1.14.1
+  TON_CLIENT_JS_REF: 1.28.0
   BUILD_TON_NODE_REPO: everscale-actions/build-evernode-se
   ARANGODB_VERSION: 3.7.9
   NGINX_VERSION: 1.19.7
