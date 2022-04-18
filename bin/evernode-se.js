@@ -79,7 +79,7 @@ async function main() {
       }
 
       process.stdout.write(boxen(
-        `TON Live Explorer: http://localhost:${global.nginxPort}\n`
+        `Evernode Live Explorer: http://localhost:${global.nginxPort}\n`
         + `GraphQL: http://localhost:${global.nginxPort}/graphql\n`
         + `ArangoDB: http://localhost:${global.arangoPort}\nApplication folder: ${global.appRoot}`,
         { padding: 1, margin: 1, borderStyle: 'double' },
