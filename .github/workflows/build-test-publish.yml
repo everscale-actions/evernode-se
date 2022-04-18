@@ -13,13 +13,13 @@ on:
   pull_request:
     types: [labeled]
 env:
-  TONOS_SE_REPO_OWNER: tonlabs
-  TONOS_SE_REPO_NAME: evernode-se
+  EVERNODE_SE_OWNER: tonlabs
+  EVERNODE_SE_REPO: evernode-se
   TON_Q_SERVER_REPO_OWNER: tonlabs
   TON_Q_SERVER_REPO_NAME: ton-q-server
-  TON_CLIENT_JS_OWNER: tonlabs
-  TON_CLIENT_JS_REPO: ton-client-js
-  TON_CLIENT_JS_REF: 1.28.0
+  EVER_SDK_JS_OWNER: tonlabs
+  EVER_SDK_JS_REPO: ever-sdk-js
+  EVER_SDK_JS_REF: 1.30.1
   BUILD_TON_NODE_REPO: everscale-actions/build-evernode-se
   ARANGODB_VERSION: 3.7.9
   NGINX_VERSION: 1.19.7
@@ -213,8 +213,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: evernode-se
-          repository: "tonlabs/evernode-se"
-          ref: ${{ env.TONOS_SE_VERSION }}
+          repository: "${{ env.EVERNODE_SE_OWNER }}/${{ env.EVERNODE_SE_REPO }}"
+          ref: ${{ needs.prepare.outputs.release-tag }}
 
       - name: Copy additional files from evernode-se repos
         run: |
@@ -310,9 +310,9 @@ jobs:
 
       - uses: actions/checkout@v2
         with:
-          repository: ${{ env.TON_CLIENT_JS_OWNER }}/${{ env.TON_CLIENT_JS_REPO }}
-          path: ton-client-js
-          ref: ${{ env.TON_CLIENT_JS_REF }}
+          repository: ${{ env.EVER_SDK_JS_OWNER }}/${{ env.EVER_SDK_JS_REPO }}
+          path: ever-sdk-js
+          ref: ${{ env.EVER_SDK_JS_REF }}
 
       - name: Install evernode-se tools
         working-directory: evernode-se
@@ -323,20 +323,20 @@ jobs:
       - name: Install Type Script
         run: npm i -g typescript
 
-      - name: Build ton-client-js/packages/core
-        working-directory: ton-client-js/packages/core
+      - name: Build ever-sdk-js/packages/core
+        working-directory: ever-sdk-js/packages/core
         run: |
           npm i
           tsc
 
-      - name: Build ton-client-js/packages/tests
-        working-directory: ton-client-js/packages/tests
+      - name: Build ever-sdk-js/packages/tests
+        working-directory: ever-sdk-js/packages/tests
         run: |
           npm i
           tsc
 
-      - name: Restore packages ton-client-js/packages/tests-node
-        working-directory: ton-client-js/packages/tests-node
+      - name: Restore packages ever-sdk-js/packages/tests-node
+        working-directory: ever-sdk-js/packages/tests-node
         run: npm i
 
       - name: Run TON OS SE
@@ -349,7 +349,7 @@ jobs:
           needFail: "true"
 
       - name: Run tests
-        working-directory: ton-client-js/packages/tests-node
+        working-directory: ever-sdk-js/packages/tests-node
         env:
           USE_NODE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ fromJson(env.DEFAULT_PORTS).nginx }}
@@ -379,7 +379,7 @@ jobs:
           needFail: "true"
 
       - name: Run tests
-        working-directory: ton-client-js/packages/tests-node
+        working-directory: ever-sdk-js/packages/tests-node
         env:
           USE_NODE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
