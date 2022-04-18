@@ -384,7 +384,7 @@ jobs:
         env:
           USE_NODE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
-        run: node --max_old_space_size=8000 run
+        run: node --max_old_space_size=16384 run
 
       - name: Stop TON OS SE
         run: evernode-se stop
