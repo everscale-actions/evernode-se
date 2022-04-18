@@ -214,7 +214,7 @@ jobs:
         with:
           path: evernode-se
           repository: "${{ env.EVERNODE_SE_OWNER }}/${{ env.EVERNODE_SE_REPO }}"
-          ref: ${{ needs.prepare.outputs.release-tag }}
+          ref: ${{ needs.prepare.outputs.evernode-se-version }}
 
       - name: Copy additional files from evernode-se repos
         run: |
