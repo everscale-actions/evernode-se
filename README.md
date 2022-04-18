@@ -14,18 +14,17 @@ evernode-se help
 ### Without installation:
 
 ```sh
-npx @everscale-actions/evernode-se help
+npx -y @everscale-actions/evernode-se@latest help
 ```
 
 ### Select special version of Evernode SE
 Use tag for select needed vesion. You can use latest or '_major[.minor[.patch]]' tag format.
 Examples:
 ```
-npx @everscale-actions/evernode-se@latest [command]
-npx @everscale-actions/evernode-se@_0 [command]
-npx @everscale-actions/evernode-se@_0.30 [command]
-npx @everscale-actions/evernode-se@_0.30.1 [command]
-npx @everscale-actions/evernode-se@_0.28 [command]
+npx -y @everscale-actions/evernode-se@_0 [command]
+npx -y @everscale-actions/evernode-se@_0.30 [command]
+npx -y @everscale-actions/evernode-se@_0.30.1 [command]
+npx -y @everscale-actions/evernode-se@_0.28 [command]
 ```
 
 ## Command List
