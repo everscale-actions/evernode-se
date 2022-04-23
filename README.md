@@ -1,6 +1,6 @@
 [<img src="https://avatars3.githubusercontent.com/u/67861283?s=150&u=4536b61595a1b422604fab8a7012092d891278f6&v=4" align="right" width="150">](https://freeton.org/)
 
-# Evernode SE
+# Evernode SE without docker
 
 ## How to use
 
