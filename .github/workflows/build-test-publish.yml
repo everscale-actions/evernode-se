@@ -85,8 +85,8 @@ jobs:
         run: |
           version=${{ needs.prepare.outputs.evernode-se-version }}
           os=${{ matrix.os }}
-          wget https://github.com/${{ env.BUILD_TON_NODE_REPO }}/releases/download/$version/ton-node-$os-$version.tar.gz
-          tar -xvzf ton-node-$os-$version.tar.gz
+          wget https://github.com/${{ env.BUILD_TON_NODE_REPO }}/releases/download/$version/evernode-se-$os-$version.tar.gz
+          tar -xvzf evernode-se-$os-$version.tar.gz
           mkdir -p ton-node
           if [[ $os == 'Windows' ]]; then
             mv ton_node_startup.exe ton-node/
