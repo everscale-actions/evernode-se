@@ -48,7 +48,7 @@ async function main() {
             { name: '--q-server-port', summary: 'Set listening port for Q-Server' },
             { name: '--nginx-port', summary: 'Set listening port for Nginx' },
             { name: '--ton-node-port', summary: 'Set listening port for Ton Node' },
-            { name: '--ton-node-kafka-msg-port', summary: 'Set listening port for Ton Node Kafka' },
+            { name: '--ton-node-api-port', summary: 'Set listening port for Ton Node Kafka' },
             { name: '--arango-port', summary: 'Set listening port for ArangoDB' },
             { name: '--github-binaries-repository', summary: 'GitHub repository with binaries. Default: {underline everscale-actions/evernode-se}' },
           ],
@@ -112,7 +112,7 @@ async function main() {
         { name: 'arango-port', type: Number },
         { name: 'ton-node-port', type: Number },
         { name: 'q-server-port', type: Number },
-        { name: 'ton-node-kafka-msg-port', type: Number },
+        { name: 'ton-node-api-port', type: Number },
         { name: 'github-binaries-repository', type: String },
       ];
 
