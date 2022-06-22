@@ -22,7 +22,7 @@ env:
   EVER_SDK_JS_REF: master
   BUILD_TON_NODE_REPO: everscale-actions/build-evernode-se
   ARANGODB_VERSION: 3.7.9
-  NGINX_VERSION: 1.19.7
+  NGINX_VERSION: 1.22.0
   DEFAULT_PORTS: '{"nginx":8080,"arango":8529,"qserver":4000,"node":40301,"requests":3000}'
   CUSTOM_PORTS: '{"nginx":8881,"arango":8882,"qserver":8883,"node":8884,"requests":8885}'
 
