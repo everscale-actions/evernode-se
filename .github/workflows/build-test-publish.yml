@@ -37,9 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Take off label
-        uses: actions/github-script@v6.0.0
+        uses: andymckay/labeler@master
         with:
-          script: "github.issues.removeLabel({...context.issue, name: '${{ github.event.label.name }}' })"
+          remove-labels: "start_tests"
 
   prepare:
     if: github.event.label.name == 'start_tests' || github.event_name == 'push'
