@@ -1,5 +1,5 @@
 export default function getConfig(version) {
-  const basePath = 'https://download.arangodb.com/arangodb37/Community';
+  const basePath = 'https://download.arangodb.com/arangodb39/Community';
   return {
     Linux: {
       url: `${basePath}/Linux/arangodb3-linux-${version}.tar.gz`,
