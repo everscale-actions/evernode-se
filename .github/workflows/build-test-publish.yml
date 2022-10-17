@@ -53,10 +53,10 @@ jobs:
       major-tag: ${{ steps.set-matrix.outputs.major-tag }}
       minor-tag: ${{ steps.set-matrix.outputs.minor-tag }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Get Evernode SE Releases and Set matrix
         id: set-matrix
-        uses: actions/github-script@v6.0.0
+        uses: actions/github-script@v6
         with:
           script: |
             const runners = ['ubuntu-18.04', 'macos-10.15', 'windows-2019'];            
@@ -97,7 +97,7 @@ jobs:
           tar -cvf ton-node-$os.tar ton-node
 
       - name: 📚 Publish artifact ${{ matrix.os }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ton-node-${{ matrix.os }}
           path: ton-node-${{ matrix.os }}.tar
@@ -111,10 +111,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Load parameters
-        uses: actions/github-script@v6.0.0
+        uses: actions/github-script@v6
         with:
           script: |
             const { default: getConfig } = await import('${{ github.workspace }}/arangodb/config.js')
@@ -137,7 +137,7 @@ jobs:
           tar -cvf arango-${{ matrix.os }}.tar arango
 
       - name: 📚 Publish artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: arango-${{ matrix.os }}
           path: arango-${{ matrix.os }}.tar
@@ -151,7 +151,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: q-server
           repository: ${{ env.TON_Q_SERVER_REPO_OWNER }}/${{ env.TON_Q_SERVER_REPO_NAME }}
@@ -175,7 +175,7 @@ jobs:
         run: tar -cvf q-server-${{ runner.os }}.tar q-server/dist/ q-server/res/ q-server/node_modules/ q-server/index.js q-server/package.json
 
       - name: 📚 Publish artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: q-server-${{ runner.os }}
           path: q-server-${{ runner.os }}.tar
@@ -188,8 +188,8 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare.outputs.runner-matrix) }}
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
       - name: Download nginx
         working-directory: nginx
         run: |
@@ -198,7 +198,7 @@ jobs:
           cp mime.types nginx/mime.types
       - run: tar -C nginx -cvf nginx-${{ runner.os }}.tar nginx
       - name: 📚 Publish artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nginx-${{ runner.os }}
           path: nginx-${{ runner.os }}.tar
@@ -210,7 +210,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout evernode-se
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: evernode-se
           repository: "${{ env.EVERNODE_SE_OWNER }}/${{ env.EVERNODE_SE_REPO }}"
@@ -229,7 +229,7 @@ jobs:
           tar -cvf ../configs.tar `ls -A`
 
       - name: 📚 Publish artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: configs
           path: configs.tar
@@ -247,7 +247,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 🎣 Download all workflow run artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
 
@@ -290,7 +290,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Prepare envs
-        uses: actions/github-script@v6.0.0
+        uses: actions/github-script@v6
         with:
           script: |
             core.exportVariable('DEFAULT_PORTS_ARRAY', Object.values(JSON.parse(process.env.DEFAULT_PORTS)).join(','));
@@ -299,16 +299,16 @@ jobs:
             Object.keys(customPorts).forEach((name) => core.exportVariable(`CUSTOM_PORTS_${name.toUpperCase()}`, customPorts[name]));
 
       - name: "Use Node.js: 16.x OS: ${{matrix.os}}"
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           registry-url: "https://registry.npmjs.org"
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: evernode-se
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: ${{ env.EVER_SDK_JS_OWNER }}/${{ env.EVER_SDK_JS_REPO }}
           path: ever-sdk-js
@@ -400,7 +400,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
