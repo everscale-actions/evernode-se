@@ -353,6 +353,7 @@ jobs:
         env:
           TON_USE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ fromJson(env.DEFAULT_PORTS).nginx }}
+          EVERCLOUD_AUTH_PROJECT: ${{ secrets.EVERCLOUD_AUTH_PROJECT }}
         run: node --max_old_space_size=16384 run
 
       - name: Stop TON OS SE
@@ -383,6 +384,7 @@ jobs:
         env:
           TON_USE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
+          EVERCLOUD_AUTH_PROJECT: ${{ secrets.EVERCLOUD_AUTH_PROJECT }}
         run: node --max_old_space_size=16384 run
 
       - name: Stop TON OS SE
