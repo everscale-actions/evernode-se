@@ -351,7 +351,7 @@ jobs:
       - name: Run tests
         working-directory: ever-sdk-js/packages/tests-node
         env:
-          USE_NODE_SE: true
+          TON_USE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ fromJson(env.DEFAULT_PORTS).nginx }}
         run: node --max_old_space_size=16384 run
 
@@ -381,7 +381,7 @@ jobs:
       - name: Run tests
         working-directory: ever-sdk-js/packages/tests-node
         env:
-          USE_NODE_SE: true
+          TON_USE_SE: true
           TON_NETWORK_ADDRESS: http://localhost:${{ env.CUSTOM_PORTS_NGINX }}
         run: node --max_old_space_size=16384 run
 
