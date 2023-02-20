@@ -1,4 +1,4 @@
-name: Build, Test and Publish EverNode SE binaries
+﻿name: Build, Test and Publish EverNode SE binaries
 
 concurrency:
   group: "only-one-release"
@@ -341,6 +341,9 @@ jobs:
 
       - name: Run EverNode SE
         run: evernode-se start
+
+      - name: Wait for first block
+        run: sleep 10
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
