@@ -1,4 +1,4 @@
-﻿name: Build, Test and Publish TON OS SE binaries
+name: Build, Test and Publish EverNode SE binaries
 
 concurrency:
   group: "only-one-release"
@@ -339,7 +339,7 @@ jobs:
         working-directory: ever-sdk-js/packages/tests-node
         run: npm i
 
-      - name: Run TON OS SE
+      - name: Run EverNode SE
         run: evernode-se start
 
       - name: Ensure that ports are opened
@@ -356,7 +356,7 @@ jobs:
           EVERCLOUD_AUTH_PROJECT: ${{ secrets.EVERCLOUD_AUTH_PROJECT }}
         run: node --max_old_space_size=16384 run
 
-      - name: Stop TON OS SE
+      - name: Stop EverNode SE
         run: evernode-se stop
 
       - name: Ensure that ports are closed
@@ -370,7 +370,7 @@ jobs:
         run: |
           evernode-se config --nginx-port ${{ env.CUSTOM_PORTS_NGINX }} --arango-port ${{ env.CUSTOM_PORTS_ARANGO }} --q-server-port ${{ env.CUSTOM_PORTS_QSERVER }} --ton-node-api-port ${{ env.CUSTOM_PORTS_API }}
 
-      - name: Run TON OS SE
+      - name: Run EverNode SE
         run: evernode-se start
 
       - name: Ensure that ports are opened
@@ -387,7 +387,7 @@ jobs:
           EVERCLOUD_AUTH_PROJECT: ${{ secrets.EVERCLOUD_AUTH_PROJECT }}
         run: node --max_old_space_size=16384 run
 
-      - name: Stop TON OS SE
+      - name: Stop EverNode SE
         run: evernode-se stop
 
       - name: Ensure that ports are closed
