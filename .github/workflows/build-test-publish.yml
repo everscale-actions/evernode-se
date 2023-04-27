@@ -89,10 +89,10 @@ jobs:
           tar -xvzf evernode-se-$os-$version.tar.gz
           mkdir -p ton-node
           if [[ $os == 'Windows' ]]; then
-            mv ton_node_startup.exe ton-node/
+            mv evernode_se.exe ton-node/
           else
-            mv ton_node_startup ton-node/
-            chmod +x ton-node/ton_node_startup
+            mv evernode_se ton-node/
+            chmod +x ton-node/evernode_se
           fi
           tar -cvf ton-node-$os.tar ton-node
 
