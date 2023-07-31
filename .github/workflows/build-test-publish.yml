@@ -343,7 +343,7 @@ jobs:
         run: evernode-se start
 
       - name: Wait for first block
-        run: sleep 10
+        run: sleep 30
 
       - name: Ensure that ports are opened
         uses: nrukavkov/open-ports-check-action@v1
